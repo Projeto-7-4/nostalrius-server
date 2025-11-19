@@ -627,15 +627,7 @@ void Player::sendPing()
 		setAttackedCreature(nullptr);
 	}
 
-	if (noPongTime >= 60000 && canLogout()) {
-		if (g_creatureEvents->playerLogout(this)) {
-			if (client) {
-				client->logout(true, true);
-			} else {
-				g_game.removeCreature(this, true);
-			}
-		}
-	}
+	// Desconexão por falta de pong removida - usar apenas idle timeout
 }
 
 Item* Player::getWriteItem(uint32_t& windowTextId, uint16_t& maxWriteLen)
