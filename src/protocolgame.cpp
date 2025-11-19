@@ -1396,9 +1396,11 @@ void ProtocolGame::sendAddTileItem(const Position& pos, const Item* item, uint32
 	NetworkMessage msg;
 	msg.addByte(0x6A);
 	msg.addPosition(pos);
-	if (player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX) {
-		msg.addByte(stackpos);
-	}
+	// Fix: Removido stackpos extra que causava desalinhamento do protocolo 772
+	// O OTClient 772 não espera esse byte, causando "invalid id" errors
+	// if (player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX) {
+	// 	msg.addByte(stackpos);
+	// }
 	msg.addItem(item);
 	writeToOutputBuffer(msg);
 }
