@@ -1143,7 +1143,10 @@ void Player::onThink(uint32_t interval)
 	if (!getTile()->hasFlag(TILESTATE_NOLOGOUT) && !isAccessPlayer() && !hasFlag(PlayerFlag_CanAlwaysLogin)) {
 		idleTime += interval;
 		const int32_t kickAfterMinutes = g_config.getNumber(ConfigManager::KICK_AFTER_MINUTES);
-		if ((!pzLocked && OTSYS_TIME() - lastPong >= 60000) || idleTime > (kickAfterMinutes * 60000) + 60000) {
+		// Fix: Removido verificação de lastPong que causava disconnect após 60s
+		// Agora usa APENAS o kickAfterMinutes do config.lua
+		if (idleTime > (kickAfterMinutes * 60000) + 60000) {
+			std::cout << "[KICK] Player kicked after " << kickAfterMinutes << " minutes idle" << std::endl;
 			kickPlayer(true);
 		} else if (client && idleTime == 60000 * kickAfterMinutes) {
 			std::ostringstream ss;
