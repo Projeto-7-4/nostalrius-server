@@ -1,0 +1,224 @@
+# GIMUD - Graphical Interface Multi User Dungeon
+# itemshop.npc: Item Shop Database
+
+Name = "Item Shop"
+Outfit = (128,95-87-114-76)
+Home = [32347,32229,7]
+Radius = 2
+
+Behaviour = {
+ADDRESS,"hello$",!       -> "Welcome to my shop, adventurer %N! <offer>"
+ADDRESS,"hi$",!          -> *
+ADDRESS,!                -> Idle
+BUSY,"hello$",!          -> "One moment please, %N.", Queue
+BUSY,"hi$",!             -> *
+BUSY,!                   -> NOP
+VANISH,!                 -> "Good bye and come again."
+
+"bye"           -> "Good bye and come again.", Idle
+"farewell"      -> *
+
+"offer"           -> "<axes>  <swords>  <shields>  <helmets>  <armors>  <legs>  <boots>  <amulets>"
+"axes"          -> "I am selling: Orcish Axe, Dwarven Axe, Knight Axe, Beastslayer Axe, Fire Axe, Stonecutter Axe, Great Axe(2H)"
+"swords"          -> "I am selling: Longsword, Scimitar, Serpent Sword, Spike Sword, Templar Scytheblade, Fire Sword, Bright Sword, Djinn Blade, Pharaoh Sword, Magic Sword"
+"shields"          -> "I am selling: Dwarven Shield, Tusk Shield, Beholder Shield, Griffin Shield, Guardian Shield, Dragon Shield, Tower Shield, Crown Shield, Medusa Shield, Vampire Shield, Demon Shield, Tempest Shield, Mastermind Shield, Great Shield, Blessed Shield"
+"helmets"          -> "I am selling: Steel Helmet, Devil Helmet, Crown Helmet, Warrior Helmet, Royal Helmet, Demon Helmet, Winged Helmet, Helmet of the Ancients, Golden Helmet"
+"armors"           -> "I am selling: Brass Armor, Scale Armor, Leopard Armor, Plate Armor, Noble Armor, Blue Robe, Knight Armor, Amazon Armor, Crown Armor, Golden Armor, Dragon Scale Mail, Demon Armor, Magic Plate Armor"
+"legs"        -> "I am selling: Brass Legs, Plate Legs, Knight Legs, Crown Legs, Golden Legs, Demon Legs, Dragon Scale Legs"
+"boots"        -> "I am selling: Crocodile Boots, Boots of Haste, Steel Boots, Golden Boots"
+"amulets"        -> "I am selling: Scarf, Platinum Amulet, Amulet of Loss"
+
+
+
+"orcish","axe"           -> Type=3316, Amount=1, Price=500,    "Do you want to buy a orcish axe for %P gold?", Topic=1
+"dwarven","axe"           -> Type=3323, Amount=1, Price=1500,    "Do you want to buy a dwarven axe for %P gold?", Topic=1
+"knight","axe"           -> Type=3318, Amount=1, Price=2500,    "Do you want to buy a knight axe for %P gold?", Topic=1
+"beastslayer","axe"           -> Type=3344, Amount=1, Price=3000,    "Do you want to buy a beastslayer axe for %P gold?", Topic=1
+"fire","axe"           -> Type=3320, Amount=1, Price=6000,    "Do you want to buy a fire axe for %P gold?", Topic=1
+"stonecutter","axe"           -> Type=3319, Amount=1, Price=190000,    "Do you want to buy a stonecutter axe for %P gold?", Topic=1
+"great","axe"           -> Type=3303, Amount=1, Price=750000,    "Do you want to buy a great axe (2H) for %P gold?", Topic=1
+
+"sell","orcish","axe"       -> Type=3316, Amount=1, Price=200,  "Do you want to sell a orcish axe for %P gold?", Topic=2
+"sell","dwarven","axe"           -> Type=3323, Amount=1, Price=300,    "Do you want to sell a a dwarven axe for %P gold?", Topic=2
+"sell","knight","axe"           -> Type=3318, Amount=1, Price=1000,    "Do you want to sell a knight axe for %P gold?", Topic=2
+"sell","beastslayer","axe"           -> Type=3344, Amount=1, Price=1200,    "Do you want to sell a beastslayer axe for %P gold?", Topic=2
+"sell","fire","axe"           -> Type=3320, Amount=1, Price=2400,    "Do you want to sell a fire axe for %P gold?", Topic=2
+"sell","stonecutter","axe"           -> Type=3319, Amount=1, Price=76000,    "Do you want to sell a stonecutter axe for %P gold?", Topic=2
+"sell","great","axe"           -> Type=3303, Amount=1, Price=300000,    "Do you want to sell a great axe (2H) for %P gold?", Topic=2
+
+
+
+
+"longsword"           -> Type=3285, Amount=1, Price=250,    "Do you want to buy a longsword for %P gold?", Topic=1
+"scimitar"           -> Type=3307, Amount=1, Price=350,    "Do you want to buy a scimitar for %P gold?", Topic=1
+"serpent sword"           -> Type=3297, Amount=1, Price=600,    "Do you want to buy a serpent sword for %P gold?", Topic=1
+"spike","sword"           -> Type=3271, Amount=1, Price=850,    "Do you want to buy a spike sword for %P gold?", Topic=1
+"templar","scytheblade"           -> Type=3345, Amount=1, Price=1200,    "Do you want to buy a templar scytheblade for %P gold?", Topic=1
+"fire","sword"           -> Type=3280, Amount=1, Price=3600,    "Do you want to buy a fire sword for %P gold?", Topic=1
+"bright","sword"           -> Type=3295, Amount=1, Price=7500,    "Do you want to buy a bright sword for %P gold?", Topic=1
+"djinn","blade"           -> Type=3339, Amount=1, Price=18400,    "Do you want to buy a djinn blade for %P gold?", Topic=1
+"pharaoh","sword"           -> Type=3333, Amount=1, Price=26000,    "Do you want to buy a pharaoh sword for %P gold?", Topic=1
+"magic","sword"           -> Type=3288, Amount=1, Price=185000,    "Do you want to buy a magic sword for %P gold?", Topic=1
+
+"sell","longsword"           -> Type=3285, Amount=1, Price=100,    "Do you want to sell a longsword for %P gold?", Topic=2
+"sell","scimitar"           -> Type=3307, Amount=1, Price=140,    "Do you want to sell a scimitar for %P gold?", Topic=2
+"sell","serpent sword"           -> Type=3297, Amount=1, Price=240,    "Do you want to sell a serpent sword for %P gold?", Topic=2
+"sell","spike","sword"           -> Type=3271, Amount=1, Price=340,    "Do you want to sell a spike sword for %P gold?", Topic=2
+"sell","templar","scytheblade"           -> Type=3345, Amount=1, Price=480,    "Do you want to sell a templar scytheblade for %P gold?", Topic=2
+"sell","fire","sword"           -> Type=3280, Amount=1, Price=1440,    "Do you want to sell a fire sword for %P gold?", Topic=2
+"sell","bright","sword"           -> Type=3295, Amount=1, Price=3000,    "Do you want to sell a bright sword for %P gold?", Topic=2
+"sell","djinn","blade"           -> Type=3339, Amount=1, Price=7360,    "Do you want to sell a djinn blade for %P gold?", Topic=2
+"sell","pharaoh","sword"           -> Type=3333, Amount=1, Price=10400,    "Do you want to sell a pharaoh sword for %P gold?", Topic=2
+"sell","magic","sword"           -> Type=3288, Amount=1, Price=74000,    "Do you want to sell a magic sword for %P gold?", Topic=2
+
+
+
+
+"dwarven","shield"       -> Type=3425, Amount=1, Price=250,  "Do you want to buy a dwarven shield for %P gold?", Topic=1
+"tusk","shield"       -> Type=3443, Amount=1, Price=500,  "Do you want to buy a tusk shield for %P gold?", Topic=1
+"beholder","shield"       -> Type=3418, Amount=1, Price=1500,  "Do you want to buy a beholder shield for %P gold?", Topic=1
+"griffin","shield"       -> Type=3433, Amount=1, Price=2000,  "Do you want to buy a griffin shield for %P gold?", Topic=1
+"guardian","shield"       -> Type=3415, Amount=1, Price=2400,  "Do you want to buy a guardian shield for %P gold?", Topic=1
+"dragon","shield"       -> Type=3416, Amount=1, Price=3500,  "Do you want to buy a dragon shield for %P gold?", Topic=1
+"tower","shield"       -> Type=3428, Amount=1, Price=7000,  "Do you want to buy a tower shield for %P gold?", Topic=1
+"crown","shield"       -> Type=3419, Amount=1, Price=7000,  "Do you want to buy a crown shield for %P gold?", Topic=1
+"medusa","shield"       -> Type=3436, Amount=1, Price=9000,  "Do you want to buy a medusa shield for %P gold?", Topic=1
+"vampire","shield"       -> Type=3434, Amount=1, Price=13000,  "Do you want to buy a vampire shield for %P gold?", Topic=1
+"demon","shield"       -> Type=3420, Amount=1, Price=30000,  "Do you want to buy a demon shield for %P gold?", Topic=1
+"tempest","shield"       -> Type=3442, Amount=1, Price=36000,  "Do you want to buy a tempest shield for %P gold?", Topic=1
+"mastermind","shield"       -> Type=3414, Amount=1, Price=51000,  "Do you want to buy a mastermind shield for %P gold?", Topic=1
+"great","shield"       -> Type=3422, Amount=1, Price=120000,  "Do you want to buy a great shield for %P gold?", Topic=1
+"blessed","shield"       -> Type=3423, Amount=1, Price=240000,  "Do you want to buy a blessed shield for %P gold?", Topic=1
+
+"sell","dwarven","shield"       -> Type=3425, Amount=1, Price=100,  "Do you want to sell a dwarven shield for %P gold?", Topic=2
+"sell","tusk","shield"       -> Type=3443, Amount=1, Price=200,  "Do you want to sell a tusk shield for %P gold?", Topic=2
+"sell","beholder","shield"       -> Type=3418, Amount=1, Price=600,  "Do you want to sell a beholder shield for %P gold?", Topic=2
+"sell","griffin","shield"       -> Type=3433, Amount=1, Price=800,  "Do you want to sell a griffin shield for %P gold?", Topic=2
+"sell","guardian","shield"       -> Type=3415, Amount=1, Price=960,  "Do you want to sell a guardian shield for %P gold?", Topic=2
+"sell","dragon","shield"       -> Type=3416, Amount=1, Price=1400,  "Do you want to sell a dragon shield for %P gold?", Topic=2
+"sell","tower","shield"       -> Type=3428, Amount=1, Price=2800,  "Do you want to sell a tower shield for %P gold?", Topic=2
+"sell","crown","shield"       -> Type=3419, Amount=1, Price=2800,  "Do you want to sell a crown shield for %P gold?", Topic=2
+"sell","medusa","shield"       -> Type=3436, Amount=1, Price=3600,  "Do you want to sell a medusa shield for %P gold?", Topic=2
+"sell","vampire","shield"       -> Type=3434, Amount=1, Price=5200,  "Do you want to sell a vampire shield for %P gold?", Topic=2
+"sell","demon","shield"       -> Type=3420, Amount=1, Price=12000,  "Do you want to sell a demon shield for %P gold?", Topic=2
+"sell","tempest","shield"       -> Type=3442, Amount=1, Price=14400,  "Do you want to sell a tempest shield for %P gold?", Topic=2
+"sell","mastermind","shield"       -> Type=3414, Amount=1, Price=20400,  "Do you want to sell a mastermind shield for %P gold?", Topic=2
+"sell","great","shield"       -> Type=3422, Amount=1, Price=48000,  "Do you want to sell a great shield for %P gold?", Topic=2
+"sell","blessed","shield"       -> Type=3423, Amount=1, Price=96000,  "Do you want to sell a blessed shield for %P gold?", Topic=2
+
+
+
+
+"steel","helmet"       -> Type=3351, Amount=1, Price=200,   "Do you want to buy a steel helmet for %P gold?", Topic=1
+"devil","helmet"       -> Type=3356, Amount=1, Price=900,   "Do you want to buy a devil helmet for %P gold?", Topic=1
+"crown","helmet"       -> Type=3385, Amount=1, Price=1200,   "Do you want to buy a crown helmet for %P gold?", Topic=1
+"warrior","helmet"       -> Type=3369, Amount=1, Price=4000,   "Do you want to buy a warrior helmet for %P gold?", Topic=1
+"royal","helmet"       -> Type=3392, Amount=1, Price=25000,   "Do you want to buy a royal helmet for %P gold?", Topic=1
+"demon","helmet"       -> Type=3387, Amount=1, Price=55000,   "Do you want to buy a demon helmet for %P gold?", Topic=1
+"winged","helmet"       -> Type=3368, Amount=1, Price=55000,   "Do you want to buy a winged helmet for %P gold?", Topic=1
+"helmet of the ancients"       -> Type=3230, Amount=1, Price=220000,   "Do you want to buy a helmet of the ancients for %P gold?", Topic=1
+"golden","helmet"       -> Type=3365, Amount=1, Price=500000,   "Do you want to buy a golden helmet for %P gold?", Topic=1
+
+"sell","steel","helmet"       -> Type=3351, Amount=1, Price=80,   "Do you want to sell a steel helmet for %P gold?", Topic=2
+"sell","devil","helmet"       -> Type=3356, Amount=1, Price=360,   "Do you want to sell a devil helmet for %P gold?", Topic=2
+"sell","crown","helmet"       -> Type=3385, Amount=1, Price=480,   "Do you want to sell a crown helmet for %P gold?", Topic=2
+"sell","warrior","helmet"       -> Type=3369, Amount=1, Price=1600,   "Do you want to sell a warrior helmet for %P gold?", Topic=2
+"sell","royal","helmet"       -> Type=3392, Amount=1, Price=10000,   "Do you want to sell a royal helmet for %P gold?", Topic=2
+"sell","demon","helmet"       -> Type=3387, Amount=1, Price=22000,   "Do you want to sell a demon helmet for %P gold?", Topic=2
+"sell","winged","helmet"       -> Type=3368, Amount=1, Price=22000,   "Do you want to sell a winged helmet for %P gold?", Topic=2
+"sell","helmet of the ancients"       -> Type=3230, Amount=1, Price=88000,   "Do you want to sell a helmet of the ancients for %P gold?", Topic=2
+"sell","golden","helmet"       -> Type=3365, Amount=1, Price=200000,   "Do you want to sell a golden helmet for %P gold?", Topic=2
+
+
+
+
+"brass","armor"        -> Type=3359, Amount=1, Price=150,  "Do you want to buy a brass armor for %P gold?", Topic=1
+"scale","armor"        -> Type=3377, Amount=1, Price=300,  "Do you want to buy a scale armor for %P gold?", Topic=1
+"leopard","armor"        -> Type=3404, Amount=1, Price=600,  "Do you want to buy a leopard armor for %P gold?", Topic=1
+"plate","armor"        -> Type=3357, Amount=1, Price=400,  "Do you want to buy a plate armor for %P gold?", Topic=1
+"noble","armor"        -> Type=3380, Amount=1, Price=1000,  "Do you want to buy a noble armor for %P gold?", Topic=1
+"blue","robe"        -> Type=3567, Amount=1, Price=1300,  "Do you want to buy a blue robe for %P gold?", Topic=1
+"knight","armor"        -> Type=3370, Amount=1, Price=4500,  "Do you want to buy a knight armor for %P gold?", Topic=1
+"amazon","armor"        -> Type=3394, Amount=1, Price=10000,  "Do you want to buy a amazon armor for %P gold?", Topic=1
+"crown","armor"        -> Type=3381, Amount=1, Price=10000,  "Do you want to buy a crown armor for %P gold?", Topic=1
+"golden","armor"        -> Type=3360, Amount=1, Price=18000,  "Do you want to buy a golden armor for %P gold?", Topic=1
+"dragon scale mail"        -> Type=3386, Amount=1, Price=38000,  "Do you want to buy a dragon scale mail for %P gold?", Topic=1
+"demon","armor"        -> Type=3388, Amount=1, Price=115000,  "Do you want to buy a demon armor for %P gold?", Topic=1
+"magic plate armor"        -> Type=3366, Amount=1, Price=155000,  "Do you want to buy a magic plate armor for %P gold?", Topic=1
+
+"sell","brass","armor"        -> Type=3359, Amount=1, Price=60,  "Do you want to sell a brass armor for %P gold?", Topic=2
+"sell","scale","armor"        -> Type=3377, Amount=1, Price=120,  "Do you want to sell a scale armor for %P gold?", Topic=2
+"sell","leopard","armor"        -> Type=3404, Amount=1, Price=240,  "Do you want to sell a leopard armor for %P gold?", Topic=2
+"sell","plate","armor"        -> Type=3357, Amount=1, Price=160,  "Do you want to sell a plate armor for %P gold?", Topic=2
+"sell","noble","armor"        -> Type=3380, Amount=1, Price=400,  "Do you want to sell a noble armor for %P gold?", Topic=2
+"sell","blue","robe"        -> Type=3567, Amount=1, Price=520,  "Do you want to sell a blue robe for %P gold?", Topic=2
+"sell","knight","armor"        -> Type=3370, Amount=1, Price=1800,  "Do you want to sell a knight armor for %P gold?", Topic=2
+"sell","amazon","armor"        -> Type=3394, Amount=1, Price=4000,  "Do you want to sell a amazon armor for %P gold?", Topic=2
+"sell","crown","armor"        -> Type=3381, Amount=1, Price=4000,  "Do you want to sell a crown armor for %P gold?", Topic=2
+"sell","golden","armor"        -> Type=3360, Amount=1, Price=7200,  "Do you want to sell a golden armor for %P gold?", Topic=2
+"sell","dragon scale mail"        -> Type=3386, Amount=1, Price=15200,  "Do you want to sell a dragon scale mail for %P gold?", Topic=2
+"sell","demon","armor"        -> Type=3388, Amount=1, Price=46000,  "Do you want to sell a demon armor for %P gold?", Topic=2
+"sell","magic plate armor"        -> Type=3366, Amount=1, Price=62000,  "Do you want to sell a magic plate armor for %P gold?", Topic=2
+
+
+
+
+"brass","legs"         -> Type=3372, Amount=1, Price=250,   "Do you want to buy brass legs for %P gold?", Topic=1
+"plate","legs"         -> Type=3557, Amount=1, Price=350,   "Do you want to buy plate legs for %P gold?", Topic=1
+"knight","legs"         -> Type=3371, Amount=1, Price=4500,   "Do you want to buy knight legs for %P gold?", Topic=1
+"crown","legs"         -> Type=3382, Amount=1, Price=4800,   "Do you want to buy crown legs for %P gold?", Topic=1
+"golden","legs"         -> Type=3364, Amount=1, Price=28000,   "Do you want to buy golden legs for %P gold?", Topic=1
+"demon","legs"         -> Type=3389, Amount=1, Price=28000,   "Do you want to buy demon legs for %P gold?", Topic=1
+"dragon scale legs"         -> Type=3363, Amount=1, Price=175000,   "Do you want to buy dragon scale legs for %P gold?", Topic=1
+
+"sell","brass","legs"         -> Type=3372, Amount=1, Price=100,   "Do you want to sell brass legs for %P gold?", Topic=2
+"sell","plate","legs"         -> Type=3557, Amount=1, Price=140,   "Do you want to sell plate legs for %P gold?", Topic=2
+"sell","knight","legs"         -> Type=3371, Amount=1, Price=1800,   "Do you want to sell knight legs for %P gold?", Topic=2
+"sell","crown","legs"         -> Type=3382, Amount=1, Price=1920,   "Do you want to sell crown legs for %P gold?", Topic=2
+"sell","golden","legs"         -> Type=3364, Amount=1, Price=11200,   "Do you want to sell golden legs for %P gold?", Topic=2
+"sell","demon","legs"         -> Type=3389, Amount=1, Price=11200,   "Do you want to sell demon legs for %P gold?", Topic=2
+"sell","dragon scale legs"         -> Type=3363, Amount=1, Price=70000,   "Do you want to sell dragon scale legs for %P gold?", Topic=2
+
+
+
+
+"crocodile","boots"         -> Type=3556, Amount=1, Price=850,   "Do you want to buy crocodile boots for %P gold?", Topic=1
+"steel","boots"         -> Type=3554, Amount=1, Price=30000,   "Do you want to buy steel boots for %P gold?", Topic=1
+"boots of haste"         -> Type=3079, Amount=1, Price=30000,   "Do you want to buy boots of haste for %P gold?", Topic=1
+"golden","boots"         -> Type=3555, Amount=1, Price=500000,   "Do you want to buy golden boots for %P gold?", Topic=1
+
+"sell","crocodile","boots"         -> Type=3556, Amount=1, Price=340,   "Do you want to sell crocodile boots for %P gold?", Topic=2
+"sell","steel","boots"         -> Type=3554, Amount=1, Price=12000,   "Do you want to sell steel boots for %P gold?", Topic=2
+"sell","boots of haste"         -> Type=3079, Amount=1, Price=12000,   "Do you want to sell boots of haste for %P gold?", Topic=2
+"sell","golden","boots"         -> Type=3555, Amount=1, Price=200000,   "Do you want to sell golden boots for %P gold?", Topic=2
+
+
+
+"scarf"         -> Type=3572, Amount=1, Price=100,   "Do you want to buy a scarf for %P gold?", Topic=1
+"platinum","amulet"         -> Type=3055, Amount=1, Price=2500,   "Do you want to buy an amulet of protection for %P gold?", Topic=1
+"amulet of loss"         -> Type=3057, Amount=1, Price=35000,   "Do you want to buy an amulet of loss for %P gold?", Topic=1
+
+"sell","scarf"         -> Type=3572, Amount=1, Price=40,   "Do you want to sell a scarf for %P gold?", Topic=2
+"sell","platinum","amulet"         -> Type=3055, Amount=1, Price=1000,   "Do you want to sell an amulet of protection for %P gold?", Topic=2
+"sell","amulet of loss"         -> Type=3057, Amount=1, Price=14000,   "Do you want to sell an amulet of loss for %P gold?", Topic=2
+
+
+
+
+
+
+
+
+Topic=1,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, Create(Type)
+Topic=1,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=1                         -> "Maybe you will buy it another time."
+
+
+Topic=2,"yes",Count(Type)>=Amount -> "Ok. Here is your money.", Delete(Type), CreateMoney
+Topic=2,"yes"                             -> "Sorry, you do not have one."
+Topic=2                                   -> "Maybe next time."
+
+
+
+}
+
