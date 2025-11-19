@@ -1329,12 +1329,9 @@ void ProtocolGame::sendSkills()
 void ProtocolGame::sendPing()
 {
 	NetworkMessage msg;
-	if (player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX) {
-		msg.addByte(0x1D);
-	} else {
-		// classic clients ping
-		msg.addByte(0x1E);
-	}
+	// Fix: Protocolo 772 usa SEMPRE 0x1E (classic ping)
+	// Remover verificação de OS que causava "invalid ping from server"
+	msg.addByte(0x1E);
 	writeToOutputBuffer(msg);
 }
 
