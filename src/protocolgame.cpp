@@ -1487,9 +1487,11 @@ void ProtocolGame::sendAddCreature(const Creature* creature, const Position& pos
 			msg.addByte(0x6A);
 			msg.addPosition(pos);
 
-			if (player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX) {
-				msg.addByte(stackpos);
-			}
+			// Fix: Removido stackpos extra que causava desalinhamento do protocolo 772
+			// Mesma causa dos items não aparecerem - byte extra no protocolo
+			// if (player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX) {
+			// 	msg.addByte(stackpos);
+			// }
 
 			bool known;
 			uint32_t removedKnown;
