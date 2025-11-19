@@ -1393,6 +1393,14 @@ void ProtocolGame::sendAddTileItem(const Position& pos, const Item* item, uint32
 		return;
 	}
 
+	// Fix: Não envia items com IDs inválidos para protocolo 772
+	uint16_t itemId = item->getID();
+	if (itemId > 8000 || itemId == 0) {
+		std::cout << "[PROTOCOL FIX] Skipping invalid item ID " << itemId << " at pos " 
+		          << pos.x << "," << pos.y << "," << (int)pos.z << std::endl;
+		return; // Não envia o item
+	}
+
 	NetworkMessage msg;
 	msg.addByte(0x6A);
 	msg.addPosition(pos);
@@ -1409,6 +1417,14 @@ void ProtocolGame::sendUpdateTileItem(const Position& pos, uint32_t stackpos, co
 {
 	if (!canSee(pos)) {
 		return;
+	}
+
+	// Fix: Não envia items com IDs inválidos para protocolo 772
+	uint16_t itemId = item->getID();
+	if (itemId > 8000 || itemId == 0) {
+		std::cout << "[PROTOCOL FIX] Skipping invalid item ID " << itemId << " update at pos " 
+		          << pos.x << "," << pos.y << "," << (int)pos.z << std::endl;
+		return; // Não envia o update
 	}
 
 	NetworkMessage msg;
