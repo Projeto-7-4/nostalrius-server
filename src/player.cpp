@@ -1139,7 +1139,8 @@ void Player::onThink(uint32_t interval)
 		addMessageBuffer();
 	}
 
-	if (!getTile()->hasFlag(TILESTATE_NOLOGOUT) && !isAccessPlayer()) {
+	// GOD nunca é kickado por AFK
+	if (!getTile()->hasFlag(TILESTATE_NOLOGOUT) && !isAccessPlayer() && !hasFlag(PlayerFlag_CanAlwaysLogin)) {
 		idleTime += interval;
 		const int32_t kickAfterMinutes = g_config.getNumber(ConfigManager::KICK_AFTER_MINUTES);
 		if ((!pzLocked && OTSYS_TIME() - lastPong >= 60000) || idleTime > (kickAfterMinutes * 60000) + 60000) {
