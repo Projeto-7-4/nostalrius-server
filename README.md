@@ -1,71 +1,224 @@
-# OpenTibiaBR - Canary
+# Nostalrius 7.72 - OT Server
 
-[![Discord Channel](https://img.shields.io/discord/528117503952551936.svg?style=flat-square&logo=discord)](https://discord.gg/gvTj5sh9Mp)
-[![Build - Ubuntu](https://github.com/opentibiabr/canary/actions/workflows/build-ubuntu.yml/badge.svg)](https://github.com/opentibiabr/canary/actions/workflows/build-ubuntu.yml)
-[![Build - Windows - CMake](https://github.com/opentibiabr/canary/actions/workflows/build-windows-cmake.yml/badge.svg)](https://github.com/opentibiabr/canary/actions/workflows/build-windows-cmake.yml)
-[![Build - Windows - Solution](https://github.com/opentibiabr/canary/actions/workflows/build-windows-solution.yml/badge.svg)](https://github.com/opentibiabr/canary/actions/workflows/build-windows-solution.yml)
-[![Build - Docker](https://github.com/opentibiabr/canary/actions/workflows/build-docker.yml/badge.svg)](https://github.com/opentibiabr/canary/actions/workflows/build-docker.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=opentibiabr_canary&metric=alert_status)](https://sonarcloud.io/dashboard?id=opentibiabr_canary)
-![GitHub repo size](https://img.shields.io/github/repo-size/opentibiabr/canary)
-[![GitHub](https://img.shields.io/github/license/opentibiabr/canary)](https://github.com/opentibiabr/canary/blob/main/LICENSE)
+![Tibia 7.72](https://img.shields.io/badge/Tibia-7.72-blue)
+![License](https://img.shields.io/badge/license-GPL%202.0-green)
 
-OpenTibiaBR - Canary is a free and open-source MMORPG server emulator written in C++. It is a fork of the [OTServBR-Global](https://github.com/opentibiabr/otservbr-global) project. To connect to the server and to take a stable experience, you can use [mehah's otclient](https://github.com/mehah/otclient)
-or [tibia client](https://github.com/dudantas/tibia-client/releases/latest) and if you want to edit something, check
-our [customized tools](https://docs.opentibiabr.com/opentibiabr/downloads/tools). If you want to edit the map, use our own [remere's map editor](https://github.com/opentibiabr/remeres-map-editor/).
+## 📖 Sobre
 
-## Getting Started
+Servidor de Tibia 7.72 baseado no **Nostalrius**, totalmente funcional e otimizado para a experiência clássica do Tibia.
 
-- [Gitbook](https://docs.opentibiabr.com/opentibiabr/projects/canary).
-- [Wiki](https://github.com/opentibiabr/canary/wiki).
+## ✨ Características
 
-## Running Tests
+- **Protocolo 7.72** - Cliente clássico do Tibia
+- **Sistema de Save Otimizado** - Posição e itens salvos corretamente
+- **Sistema AFK Inteligente** - 30 minutos de idle antes do kick
+- **Timeouts Configuráveis** - Sem desconexões inesperadas
+- **SQL Completo** - Schema do banco de dados incluído
+- **Compatível com MySQL 5.7+**
 
-Tests can be run directly from the repository root using CMake test presets:
+## 🚀 Instalação
+
+### Requisitos
+
+- Ubuntu 20.04+ (ou Linux similar)
+- MySQL 5.7+
+- CMake 3.5+
+- GCC 9+
+- LuaJIT 5.1
+- Boost 1.66+
+
+### Dependências (Ubuntu/Debian)
 
 ```bash
-# Configure and build tests for your platform
-cmake --preset linux-debug && cmake --build --preset linux-debug
-
-# Run all tests
-ctest --preset linux-debug
-
-# For other platforms use:
-# ctest --preset macos-debug
-# ctest --preset windows-debug
+sudo apt update
+sudo apt install -y build-essential cmake git libboost-all-dev \
+    libluajit-5.1-dev libmysqlclient-dev mysql-server \
+    libpugixml-dev libcrypto++-dev libgmp3-dev
 ```
 
-For detailed testing information including adding tests and framework usage, see [tests/README.md](tests/README.md).
+### Compilação
 
-## Support
+```bash
+# Clone o repositório
+git clone https://github.com/DigitalSolutions-999/canary.git nostalrius
+cd nostalrius
 
-If you need help, please visit our [discord](https://discord.gg/gvTj5sh9Mp). Our issue tracker is not a support forum, and using it as one will result in your issue being closed.
+# Crie a pasta de build
+mkdir build && cd build
 
-## Contributing
+# Configure e compile
+cmake ..
+make -j$(nproc)
+```
 
-Here are some ways you can contribute:
+### Configuração do Banco de Dados
 
-- [Issue Tracker](https://github.com/opentibiabr/canary/issues/new/choose).
-- [Pull Request](https://github.com/opentibiabr/canary/pulls).
+```bash
+# Crie o banco de dados
+mysql -u root -p
+CREATE DATABASE nostalrius;
+CREATE USER 'otserver'@'localhost' IDENTIFIED BY 'sua_senha_aqui';
+GRANT ALL PRIVILEGES ON nostalrius.* TO 'otserver'@'localhost';
+FLUSH PRIVILEGES;
+exit;
 
-You are subject to our code of conduct, read at [this link](https://github.com/opentibiabr/canary/blob/main/CODE_OF_CONDUCT.md).
+# Importe o schema
+mysql -u otserver -p nostalrius < nostalrius.sql
+```
 
-## Special Thanks
+### Configuração do Servidor
 
-- Our contributors ([Canary](https://github.com/opentibiabr/canary/graphs/contributors) | [OTServBR-Global](https://github.com/opentibiabr/otservbr-global/graphs/contributors)).
+Edite o arquivo `config.lua`:
 
-## Sponsors
+```lua
+-- IP do servidor
+ip = "127.0.0.1"
 
-See our [donate page](https://docs.opentibiabr.com/home/donate).
+-- Porta do servidor
+loginProtocolPort = 7171
+gameProtocolPort = 7172
 
-## Project supported by JetBrains
+-- Configurações do MySQL
+mysqlHost = "localhost"
+mysqlUser = "otserver"
+mysqlPass = "sua_senha_aqui"
+mysqlDatabase = "nostalrius"
+mysqlPort = 3306
+mysqlSock = "/var/run/mysqld/mysqld.sock"
 
-We extend our heartfelt gratitude to Jetbrains for generously granting us licenses to collaborate on this and various
-other open-source initiatives.
+-- Tempo de AFK (30 minutos)
+kickIdlePlayerAfterMinutes = 30
+```
 
-<a href="https://jb.gg/OpenSourceSupport/?from=https://github.com/opentibiabr/canary/">
-  <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains" width="150" />
-</a>
+### Executando o Servidor
 
-## Partners
+```bash
+cd ~/nostalrius
+./build/tfs
+```
 
-[![Supported by OTServ Brasil](https://raw.githubusercontent.com/otbr/otserv-brasil/main/otbr.png)](https://forums.otserv.com.br)
+## 🎮 Cliente
+
+Este servidor é compatível com o **OTClient mehah** (versão Nekiro/Nostalrius).
+
+- [OTClient mehah - Nekiro/Nostalrius](https://github.com/mehah/otclient)
+
+### Configuração do Cliente
+
+No arquivo `init.lua` do OTClient:
+
+```lua
+Servers = {
+    ["Nostalrius 7.72"] = "SEU_IP:7171:772"
+}
+```
+
+Certifique-se de ter os assets corretos em `data/things/772/`:
+- `Tibia.dat`
+- `Tibia.spr`
+
+## 🌐 Website (MyAAC)
+
+O servidor é compatível com **MyAAC** para gestão de contas e guild.
+
+### Instalação do MyAAC
+
+```bash
+# Clone o MyAAC
+cd /var/www/html
+git clone https://github.com/slawkens/myaac.git .
+
+# Configure as permissões
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+
+# Instale as dependências
+composer install
+npm install
+```
+
+### Configuração do MyAAC
+
+Edite `config.local.php`:
+
+```php
+$config['server_path'] = '/caminho/para/nostalrius/';
+$config['client'] = 772;
+$config['database_host'] = 'localhost';
+$config['database_user'] = 'otserver';
+$config['database_password'] = 'sua_senha_aqui';
+$config['database_name'] = 'nostalrius';
+$config['database_socket'] = '/var/run/mysqld/mysqld.sock';
+```
+
+## 📝 Correções Implementadas
+
+### ✅ Sistema de Save de Posição
+- Corrigido bug do campo `sex` na query SQL
+- Posição do jogador agora salva corretamente no logout
+
+### ✅ Sistema de Timeout Otimizado
+- Removido ping timeout de 60 segundos
+- Aumentado connection timeout para 5 minutos
+- Sistema AFK de 30 minutos (configurável)
+- Sem desconexões inesperadas
+
+### ✅ Debug Logs
+- Logs detalhados para SQL queries
+- Logs de conexão e desconexão
+- Logs de kick por AFK
+
+## 🔧 Troubleshooting
+
+### Servidor não inicia
+
+```bash
+# Verifique se o MySQL está rodando
+sudo systemctl status mysql
+
+# Verifique as permissões do socket
+ls -la /var/run/mysqld/mysqld.sock
+```
+
+### Cliente não conecta
+
+1. Verifique se o IP e porta estão corretos no `config.lua`
+2. Verifique se o firewall está liberado:
+   ```bash
+   sudo ufw allow 7171
+   sudo ufw allow 7172
+   ```
+3. Certifique-se de que o cliente está configurado para protocolo 772
+
+### Player desconectando
+
+- Verifique o `kickIdlePlayerAfterMinutes` no `config.lua`
+- Verifique os logs do servidor: `cat server.log | grep KICK`
+
+## 📚 Documentação
+
+- [Wiki Oficial do OTServ](https://otland.net/forums/)
+- [OTClient Documentation](https://github.com/edubart/otclient/wiki)
+- [MyAAC Documentation](https://my-aac.org/)
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+
+## 📄 Licença
+
+Este projeto está sob a licença GPL 2.0. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 👥 Créditos
+
+- **Nostalrius Team** - Servidor base
+- **OTLand Community** - Suporte e documentação
+- **mehah** - OTClient moderno
+
+## 📧 Contato
+
+Para suporte ou dúvidas, abra uma issue no GitHub.
+
+---
+
+**⚠️ Aviso Legal:** Este projeto é apenas para fins educacionais. Tibia é uma marca registrada da CipSoft GmbH.
