@@ -44,3 +44,4 @@ config.local.lua
 
 # Database dumps (opcionais, descomente se necessário)
 # *.sql
+config.lua
