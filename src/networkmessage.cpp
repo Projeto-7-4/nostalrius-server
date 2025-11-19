@@ -99,10 +99,17 @@ void NetworkMessage::addItem(uint16_t id, uint8_t count)
 {
 	const ItemType& it = Item::items[id];
 
+	// Fix: Validate item ID for protocol 772 (max ~8000)
+	uint16_t safeId = it.id;
+	if (safeId > 8000 || safeId == 0) {
+		safeId = 1; // Default to water if invalid
+		std::cout << "[ITEM FIX] Invalid item ID " << it.id << " replaced with 1" << std::endl;
+	}
+
 	if (it.disguise) {
 		add<uint16_t>(it.disguiseId);
 	} else {
-		add<uint16_t>(it.id);
+		add<uint16_t>(safeId);
 	}
 
 	if (it.stackable) {
@@ -116,10 +123,17 @@ void NetworkMessage::addItem(const Item* item)
 {
 	const ItemType& it = Item::items[item->getID()];
 
+	// Fix: Validate item ID for protocol 772 (max ~8000)
+	uint16_t safeId = it.id;
+	if (safeId > 8000 || safeId == 0) {
+		safeId = 1; // Default to water if invalid
+		std::cout << "[ITEM FIX] Invalid item ID " << it.id << " replaced with 1" << std::endl;
+	}
+
 	if (it.disguise) {
 		add<uint16_t>(it.disguiseId);
 	} else {
-		add<uint16_t>(it.id);
+		add<uint16_t>(safeId);
 	}
 
 	if (it.stackable) {
