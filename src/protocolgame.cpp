@@ -693,6 +693,14 @@ void ProtocolGame::parseSetOutfit(NetworkMessage& msg)
 	newOutfit.lookBody = msg.getByte();
 	newOutfit.lookLegs = msg.getByte();
 	newOutfit.lookFeet = msg.getByte();
+	
+	std::cout << "[OUTFIT DEBUG] Player " << player->getName() 
+	          << " changing outfit: Type=" << newOutfit.lookType
+	          << " Head=" << (int)newOutfit.lookHead
+	          << " Body=" << (int)newOutfit.lookBody
+	          << " Legs=" << (int)newOutfit.lookLegs
+	          << " Feet=" << (int)newOutfit.lookFeet << std::endl;
+	
 	addGameTask(&Game::playerChangeOutfit, player->getID(), newOutfit);
 }
 
