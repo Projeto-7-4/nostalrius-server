@@ -1740,20 +1740,33 @@ void ProtocolGame::sendOutfitWindow()
 	Outfit_t currentOutfit = player->getDefaultOutfit();
 	AddOutfit(msg, currentOutfit);
 
+	uint16_t outfitStart, outfitEnd;
 	if (player->getSex() == PLAYERSEX_MALE) {
-		msg.add<uint16_t>(128);
+		outfitStart = 128;
 		if (player->isPremium()) {
-			msg.add<uint16_t>(134);
+			outfitEnd = 134;
 		} else {
-			msg.add<uint16_t>(131);
+			outfitEnd = 131;
 		}
+		msg.add<uint16_t>(outfitStart);
+		msg.add<uint16_t>(outfitEnd);
+		
+		std::cout << "[OUTFIT WINDOW] Player " << player->getName() 
+		          << " (MALE) - Sending outfits: " << outfitStart << "-" << outfitEnd 
+		          << " (Premium: " << (player->isPremium() ? "YES" : "NO") << ")" << std::endl;
 	} else {
-		msg.add<uint16_t>(136);
+		outfitStart = 136;
 		if (player->isPremium()) {
-			msg.add<uint16_t>(142);
+			outfitEnd = 142;
 		} else {
-			msg.add<uint16_t>(139);
-	}
+			outfitEnd = 139;
+		}
+		msg.add<uint16_t>(outfitStart);
+		msg.add<uint16_t>(outfitEnd);
+		
+		std::cout << "[OUTFIT WINDOW] Player " << player->getName() 
+		          << " (FEMALE) - Sending outfits: " << outfitStart << "-" << outfitEnd 
+		          << " (Premium: " << (player->isPremium() ? "YES" : "NO") << ")" << std::endl;
 	}
 
 	writeToOutputBuffer(msg);
