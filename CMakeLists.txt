@@ -32,7 +32,7 @@ if(USE_LUAJIT)
       set(CMAKE_EXE_LINKER_FLAGS "-pagezero_size 10000 -image_base 100000000")
     endif()
 else()
-    find_package(Lua)
+    find_package(Lua 5.1 EXACT REQUIRED)
 endif()
 
 find_package(Boost 1.53.0 COMPONENTS system filesystem REQUIRED)
