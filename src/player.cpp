@@ -3216,25 +3216,9 @@ void Player::changeSoul(int32_t soulChange)
 
 bool Player::canWear(uint32_t lookType) const
 {
-	if (group->access) {
-		return true;
-	}
-
-	if (getSex() == PLAYERSEX_MALE) {
-		if (lookType >= 132 && lookType <= 134 && isPremium()) {
-			return true;
-		} else if (lookType >= 128 && lookType <= 131) {
-			return true;
-		}
-	} else if (getSex() == PLAYERSEX_FEMALE) {
-		if (lookType >= 140 && lookType <= 142 && isPremium()) {
-			return true;
-		} else if (lookType >= 136 && lookType <= 139) {
-			return true;
-		}
-	}
-
-	return false;
+	// Permite qualquer outfit (remove restrições de 7.72)
+	// Players podem trocar outfits e cores livremente
+	return true;
 }
 
 bool Player::canLogout()
