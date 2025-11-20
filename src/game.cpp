@@ -2868,28 +2868,21 @@ void Game::playerRequestOutfit(uint32_t playerId)
 void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit)
 {
 	if (!g_config.getBoolean(ConfigManager::ALLOW_CHANGEOUTFIT)) {
-		std::cout << "[OUTFIT DEBUG] ALLOW_CHANGEOUTFIT is false!" << std::endl;
 		return;
 	}
 
 	Player* player = getPlayerByID(playerId);
 	if (!player) {
-		std::cout << "[OUTFIT DEBUG] Player not found!" << std::endl;
 		return;
 	}
 
-	std::cout << "[OUTFIT DEBUG] Player " << player->getName() << " canWear(" << outfit.lookType << ")? " << (player->canWear(outfit.lookType) ? "YES" : "NO") << std::endl;
-	
 	if (player->canWear(outfit.lookType)) {
 		player->defaultOutfit = outfit;
-		std::cout << "[OUTFIT DEBUG] Outfit saved to defaultOutfit" << std::endl;
 
 		if (player->hasCondition(CONDITION_OUTFIT)) {
-			std::cout << "[OUTFIT DEBUG] Player has CONDITION_OUTFIT, not changing!" << std::endl;
 			return;
 		}
 
-		std::cout << "[OUTFIT DEBUG] Calling internalCreatureChangeOutfit" << std::endl;
 		internalCreatureChangeOutfit(player, outfit);
 	}
 }

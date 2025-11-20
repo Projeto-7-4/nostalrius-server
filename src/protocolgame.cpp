@@ -693,14 +693,6 @@ void ProtocolGame::parseSetOutfit(NetworkMessage& msg)
 	newOutfit.lookBody = msg.getByte();
 	newOutfit.lookLegs = msg.getByte();
 	newOutfit.lookFeet = msg.getByte();
-	
-	std::cout << "[OUTFIT DEBUG] Player " << player->getName() 
-	          << " changing outfit: Type=" << newOutfit.lookType
-	          << " Head=" << (int)newOutfit.lookHead
-	          << " Body=" << (int)newOutfit.lookBody
-	          << " Legs=" << (int)newOutfit.lookLegs
-	          << " Feet=" << (int)newOutfit.lookFeet << std::endl;
-	
 	addGameTask(&Game::playerChangeOutfit, player->getID(), newOutfit);
 }
 
@@ -1740,33 +1732,20 @@ void ProtocolGame::sendOutfitWindow()
 	Outfit_t currentOutfit = player->getDefaultOutfit();
 	AddOutfit(msg, currentOutfit);
 
-	uint16_t outfitStart, outfitEnd;
 	if (player->getSex() == PLAYERSEX_MALE) {
-		outfitStart = 128;
+		msg.add<uint16_t>(128);
 		if (player->isPremium()) {
-			outfitEnd = 134;
+			msg.add<uint16_t>(134);
 		} else {
-			outfitEnd = 131;
+			msg.add<uint16_t>(131);
 		}
-		msg.add<uint16_t>(outfitStart);
-		msg.add<uint16_t>(outfitEnd);
-		
-		std::cout << "[OUTFIT WINDOW] Player " << player->getName() 
-		          << " (MALE) - Sending outfits: " << outfitStart << "-" << outfitEnd 
-		          << " (Premium: " << (player->isPremium() ? "YES" : "NO") << ")" << std::endl;
 	} else {
-		outfitStart = 136;
+		msg.add<uint16_t>(136);
 		if (player->isPremium()) {
-			outfitEnd = 142;
+			msg.add<uint16_t>(142);
 		} else {
-			outfitEnd = 139;
+			msg.add<uint16_t>(139);
 		}
-		msg.add<uint16_t>(outfitStart);
-		msg.add<uint16_t>(outfitEnd);
-		
-		std::cout << "[OUTFIT WINDOW] Player " << player->getName() 
-		          << " (FEMALE) - Sending outfits: " << outfitStart << "-" << outfitEnd 
-		          << " (Premium: " << (player->isPremium() ? "YES" : "NO") << ")" << std::endl;
 	}
 
 	writeToOutputBuffer(msg);
