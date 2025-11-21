@@ -1,5 +1,5 @@
--- Sistema de Training Dummies para Nostalrius 7.72 (API antiga)
--- Exercise weapons que gastam charges ao treinar skills
+-- Sistema de Training Dummies para Nostalrius 7.72
+-- Funciona com QUALQUER arma que tenha charges!
 
 local config = {
 	-- Dummies (NPCs que podem ser atacados)
@@ -8,18 +8,17 @@ local config = {
 		"training dummy"
 	},
 	
-	-- Exercise weapons e seus skills
-	weapons = {
-		-- Melee weapons
-		[5901] = {skill = SKILL_SWORD, effect = CONST_ME_HITAREA},
-		[5902] = {skill = SKILL_AXE, effect = CONST_ME_HITAREA},
-		[5903] = {skill = SKILL_CLUB, effect = CONST_ME_HITAREA},
-		[5904] = {skill = SKILL_DISTANCE, effect = CONST_ME_HITBYPOISON},
-		[5905] = {skill = SKILL_SHIELD, effect = CONST_ME_BLOCKHIT}
+	-- Mapeamento de weapon types para skills
+	skillByWeaponType = {
+		[WEAPON_SWORD] = SKILL_SWORD,
+		[WEAPON_AXE] = SKILL_AXE,
+		[WEAPON_CLUB] = SKILL_CLUB,
+		[WEAPON_DIST] = SKILL_DISTANCE,
+		[WEAPON_SHIELD] = SKILL_SHIELD
 	},
 	
 	-- Configurações de treino
-	gainPerHit = 100,         -- Skill tries por hit (ajuste conforme necessário)
+	gainPerHit = 100,         -- Skill tries por hit
 	hitDelay = 2000,          -- Delay entre hits (ms)
 	animationEffect = true    -- Mostrar efeitos visuais
 }
@@ -48,7 +47,12 @@ local function getSkillName(skillId)
 		[SKILL_DISTANCE] = "distance fighting",
 		[SKILL_SHIELD] = "shielding"
 	}
-	return names[skillId] or "unknown"
+	return names[skillId] or "skill"
+end
+
+local function getWeaponSkill(item)
+	local weaponType = item:getType():getWeaponType()
+	return config.skillByWeaponType[weaponType]
 end
 
 function onUse(cid, item, fromPosition, itemEx, toPosition)
@@ -69,9 +73,17 @@ function onUse(cid, item, fromPosition, itemEx, toPosition)
 		return false
 	end
 	
-	-- Configuração da arma
-	local weaponConfig = config.weapons[item.itemid]
-	if not weaponConfig then
+	-- Verifica se item tem charges
+	local charges = item:getAttribute(ITEM_ATTRIBUTE_CHARGES)
+	if not charges or charges <= 0 then
+		player:sendTextMessage(MESSAGE_STATUS_SMALL, "This item has no charges left.")
+		return false
+	end
+	
+	-- Identifica skill baseado no tipo de arma
+	local skill = getWeaponSkill(item)
+	if not skill then
+		player:sendTextMessage(MESSAGE_STATUS_SMALL, "You cannot train with this item.")
 		return false
 	end
 	
@@ -83,16 +95,7 @@ function onUse(cid, item, fromPosition, itemEx, toPosition)
 	end
 	lastHit[playerId] = now
 	
-	-- Verifica charges
-	local charges = item:getCharges()
-	if charges <= 0 then
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, "Your exercise weapon has broken.")
-		item:remove(1)
-		return true
-	end
-	
-	-- Treina skill
-	local skill = weaponConfig.skill
+	-- Salva skill atual
 	local currentSkill = player:getSkillLevel(skill)
 	
 	-- Adiciona skill tries
@@ -103,7 +106,7 @@ function onUse(cid, item, fromPosition, itemEx, toPosition)
 	
 	-- Efeito visual
 	if config.animationEffect then
-		toPosition:sendMagicEffect(weaponConfig.effect)
+		toPosition:sendMagicEffect(CONST_ME_HITAREA)
 		fromPosition:sendMagicEffect(CONST_ME_HITAREA)
 	end
 	
@@ -118,13 +121,13 @@ function onUse(cid, item, fromPosition, itemEx, toPosition)
 	local remainingCharges = charges - 1
 	if remainingCharges > 0 then
 		player:sendTextMessage(MESSAGE_STATUS_SMALL, 
-			"Training... [" .. remainingCharges .. " charges left]")
+			"Training " .. getSkillName(skill) .. "... [" .. remainingCharges .. " charges left]")
 	else
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, "Your exercise weapon has broken.")
+		player:sendTextMessage(MESSAGE_STATUS_SMALL, "Your training weapon has no more charges.")
 		item:remove(1)
 	end
 	
 	return true
 end
 
-print(">> Training weapons system loaded!")
+print(">> Training weapons system loaded (universal)!")
