@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<monster name="Training Dummy" nameDescription="a training dummy" race="blood" experience="0" speed="0" manacost="0">
+	<health now="10000000" max="10000000"/>
+	<look type="128" head="114" body="114" legs="114" feet="114" corpse="0"/>
+	<targetchange interval="0" chance="0"/>
+	<strategy attack="100" defense="0"/>
+	<flags>
+		<summonable value="0"/>
+		<attackable value="1"/>
+		<hostile value="0"/>
+		<illusionable value="0"/>
+		<convinceable value="0"/>
+		<pushable value="0"/>
+		<canpushitems value="0"/>
+		<canpushcreatures value="0"/>
+		<targetdistance value="0"/>
+		<staticattack value="100"/>
+		<runonhealth value="0"/>
+	</flags>
+	<attacks>
+	</attacks>
+	<defenses armor="0" defense="0">
+	</defenses>
+	<immunities>
+		<immunity physical="1"/>
+		<immunity energy="1"/>
+		<immunity fire="1"/>
+		<immunity poison="1"/>
+		<immunity lifedrain="1"/>
+		<immunity paralyze="1"/>
+		<immunity outfit="1"/>
+		<immunity drunk="1"/>
+		<immunity invisible="1"/>
+	</immunities>
+	<loot>
+	</loot>
+</monster>
+
