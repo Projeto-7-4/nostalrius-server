@@ -362,6 +362,8 @@ bool ConditionAttributes::startCondition(Creature* creature)
 		updateSkills(player);
 		updatePercentStats(player);
 		updateStats(player);
+		// Combat System - Apply Special Skills
+		updateSpecialSkills(player);
 	}
 
 	return true;
@@ -434,6 +436,16 @@ void ConditionAttributes::updateSkills(Player* player)
 	}
 }
 
+// Combat System - Update Special Skills
+void ConditionAttributes::updateSpecialSkills(Player* player)
+{
+	for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
+		if (specialSkills[i]) {
+			player->setVarSpecialSkill(static_cast<SpecialSkills_t>(i), specialSkills[i]);
+		}
+	}
+}
+
 bool ConditionAttributes::executeCondition(Creature* creature, int32_t interval)
 {
 	return ConditionGeneric::executeCondition(creature, interval);
@@ -467,6 +479,13 @@ void ConditionAttributes::endCondition(Creature* creature)
 
 		if (needUpdateStats) {
 			player->sendStats();
+		}
+
+		// Combat System - Remove Special Skills
+		for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
+			if (specialSkills[i]) {
+				player->setVarSpecialSkill(static_cast<SpecialSkills_t>(i), -specialSkills[i]);
+			}
 		}
 	}
 }
@@ -587,6 +606,37 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value)
 
 		case CONDITION_PARAM_STAT_MAGICPOINTSPERCENT: {
 			statsPercent[STAT_MAGICPOINTS] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		// Combat System - Special Skills
+		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE: {
+			specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = value;
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITAMOUNT: {
+			specialSkills[SPECIALSKILL_CRITICALHITAMOUNT] = value;
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALSKILL_LIFELEECHCHANCE: {
+			specialSkills[SPECIALSKILL_LIFELEECHCHANCE] = value;
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALSKILL_LIFELEECHAMOUNT: {
+			specialSkills[SPECIALSKILL_LIFELEECHAMOUNT] = value;
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALSKILL_MANALEECHCHANCE: {
+			specialSkills[SPECIALSKILL_MANALEECHCHANCE] = value;
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALSKILL_MANALEECHAMOUNT: {
+			specialSkills[SPECIALSKILL_MANALEECHAMOUNT] = value;
 			return true;
 		}
 

@@ -166,6 +166,8 @@ class ConditionAttributes final : public ConditionGeneric
 		int32_t skillsPercent[SKILL_LAST + 1] = {};
 		int32_t stats[STAT_LAST + 1] = {};
 		int32_t statsPercent[STAT_LAST + 1] = {};
+		// Combat System - Special Skills
+		int32_t specialSkills[SPECIALSKILL_LAST + 1] = {};
 		int32_t currentSkill = 0;
 		int32_t currentStat = 0;
 
@@ -173,6 +175,8 @@ class ConditionAttributes final : public ConditionGeneric
 		void updateStats(Player* player);
 		void updatePercentSkills(Player* player);
 		void updateSkills(Player* player);
+		// Combat System - Special Skills
+		void updateSpecialSkills(Player* player);
 };
 
 class ConditionRegeneration final : public ConditionGeneric
