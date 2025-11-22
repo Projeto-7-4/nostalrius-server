@@ -164,10 +164,8 @@ bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, cons
             if (channel) {
                 std::ostringstream joinMsg;
                 joinMsg << "has joined the cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
-                // Send to all users in Cast Channel (broadcaster and all viewers)
-                for (const auto& it : channel->getUsers()) {
-                    it.second->sendToChannel(viewerPlayer, TALKTYPE_CHANNEL_O, joinMsg.str(), CHANNEL_CAST);
-                }
+                // Use channel->talk() to broadcast to all users once
+                channel->talk(*viewerPlayer, TALKTYPE_CHANNEL_O, joinMsg.str());
             }
         }
     }
@@ -192,10 +190,8 @@ void Cast::removeViewer(ProtocolGame* protocol, Player* viewerPlayer)
                     if (channel) {
                         std::ostringstream leaveMsg;
                         leaveMsg << "has left the cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
-                        // Send to all users in Cast Channel (broadcaster and remaining viewers)
-                        for (const auto& it : channel->getUsers()) {
-                            it.second->sendToChannel(viewerPlayer, TALKTYPE_CHANNEL_O, leaveMsg.str(), CHANNEL_CAST);
-                        }
+                        // Use channel->talk() to broadcast to all users once
+                        channel->talk(*viewerPlayer, TALKTYPE_CHANNEL_O, leaveMsg.str());
                     }
                 }
             }
