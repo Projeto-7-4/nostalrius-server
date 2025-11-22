@@ -501,17 +501,9 @@ void ProtocolGame::writeToOutputBuffer(const NetworkMessage& msg)
 void ProtocolGame::broadcastToViewers(const NetworkMessage& msg)
 {
 	if (player && player->isCasting()) {
-		// Don't broadcast channel messages (0xAA) because viewers receive them as channel members
-		if (msg.getLength() >= 1) {
-			const uint8_t* buffer = msg.getBuffer();
-			uint8_t opcode = buffer[0];
-			
-			if (opcode == 0xAA) {
-				// Skip broadcasting channel messages - viewers get them via sendToChannel
-				return;
-			}
-		}
-		
+		// Broadcast everything to viewers - they will receive it via Cast System
+		// Note: Viewers are in Cast Channel but we skip sending to them via channel->talk()
+		// so they only receive via broadcast (no duplication)
 		Cast* cast = player->getCast();
 		if (cast) {
 			cast->broadcastToViewers(msg);
