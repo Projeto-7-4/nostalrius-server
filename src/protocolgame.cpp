@@ -322,6 +322,8 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 	uint32_t accountNumber = msg.get<uint32_t>();
 	std::string characterName = msg.getString();
 	std::string password = msg.getString();
+	
+	std::cout << "[ProtocolGame] onRecvFirstMessage - Account: " << accountNumber << ", Character: " << characterName << std::endl;
 
 	/*if (version < CLIENT_VERSION_MIN || version > CLIENT_VERSION_MAX) {
 		//sendUpdateRequest();
