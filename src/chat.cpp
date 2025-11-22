@@ -479,6 +479,16 @@ bool Chat::talkToChannel(const Player& player, SpeakClasses type, const std::str
 		} else if (type != TALKTYPE_CHANNEL_Y) {
 			type = TALKTYPE_CHANNEL_Y;
 		}
+	} else if (channelId == CHANNEL_CAST) {
+		// Cast System - Owner speaks in orange, viewers in yellow
+		Cast* cast = const_cast<Player&>(player).getCast();
+		if (cast && cast->isCasting()) {
+			// This is the broadcaster/owner
+			type = TALKTYPE_CHANNEL_O;
+		} else {
+			// This is a viewer
+			type = TALKTYPE_CHANNEL_Y;
+		}
 	} else if (type != TALKTYPE_CHANNEL_Y && (channelId == CHANNEL_PRIVATE || channelId == CHANNEL_PARTY)) {
 		type = TALKTYPE_CHANNEL_Y;
 	}

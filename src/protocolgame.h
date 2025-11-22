@@ -87,10 +87,11 @@ class ProtocolGame final : public Protocol
 		void onRecvFirstMessage(NetworkMessage& msg) final;
 
 		//Parse methods
-		void parseAutoWalk(NetworkMessage& msg);
-		void parseSetOutfit(NetworkMessage& msg);
-		void parseSay(NetworkMessage& msg);
-		void parseLookAt(NetworkMessage& msg);
+	void parseAutoWalk(NetworkMessage& msg);
+	void parseSetOutfit(NetworkMessage& msg);
+	void parseSay(NetworkMessage& msg);
+	void parseViewerSay(NetworkMessage& msg); // Cast System - viewer chat
+	void parseLookAt(NetworkMessage& msg);
 		void parseLookInBattleList(NetworkMessage& msg);
 		void parseFightModes(NetworkMessage& msg);
 		void parseAttack(NetworkMessage& msg);
