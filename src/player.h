@@ -914,6 +914,7 @@ class Player final : public Creature, public Cylinder
 	void stopWatchingCast();
 	bool isWatchingCast() const { return watchingCast != nullptr; }
 	Cast* getWatchingCast() const { return watchingCast; }
+	Player* viewingBroadcaster = nullptr; // Cast System - broadcaster being watched (public for chat system)
 
 	protected:
 		std::forward_list<Condition*> getMuteConditions() const;
@@ -975,11 +976,10 @@ class Player final : public Creature, public Cylinder
 		std::vector<OutfitEntry> outfits;
 		GuildWarList guildWarList;
 
-	Cast* cast = nullptr;
-	Cast* watchingCast = nullptr;
-	Player* viewingBroadcaster = nullptr; // Cast System - broadcaster being watched
+		Cast* cast = nullptr;
+		Cast* watchingCast = nullptr;
 
-	std::forward_list<Party*> invitePartyList;
+		std::forward_list<Party*> invitePartyList;
 		std::forward_list<std::string> learnedInstantSpellList;
 		std::forward_list<Condition*> storedConditionList; // TODO: This variable is only temporarily used when logging in, get rid of it somehow
 
