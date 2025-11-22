@@ -55,8 +55,11 @@ void ProtocolLogin::disconnectClient(const std::string& message)
 
 void ProtocolLogin::getCharacterList(uint32_t accountNumber, const std::string& password)
 {
+	std::cout << "[Login] Account: " << accountNumber << ", Password: " << password << std::endl;
+	
 	// Check if this is a cast viewer connection (special account number)
 	if (accountNumber == 999999999) {
+		std::cout << "[Cast] Cast viewer detected!" << std::endl;
 		// Cast viewer login
 		// Password format: "PlayerName" or "PlayerName:password"
 		std::string broadcasterName = password;
