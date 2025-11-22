@@ -22,6 +22,7 @@
 #include <bitset>
 
 #include "bed.h"
+#include "cast.h"
 #include "chat.h"
 #include "combat.h"
 #include "configmanager.h"
@@ -59,6 +60,10 @@ Player::~Player()
 
 	for (const auto& it : depotLockerMap) {
 		it.second->decrementReferenceCounter();
+	}
+
+	if (cast) {
+		stopCast();
 	}
 
 	setWriteItem(nullptr);
@@ -3658,4 +3663,71 @@ void Player::setGuild(Guild* guild)
 	if (oldGuild) {
 		oldGuild->removeMember(this);
 	}
+}
+
+// Cast System Implementation
+bool Player::startCast(const std::string& password)
+{
+	if (cast) {
+		return false;
+	}
+	
+	cast = new Cast(this);
+	return cast->startCast(password);
+}
+
+void Player::stopCast()
+{
+	if (!cast) {
+		return;
+	}
+	
+	cast->stopCast();
+	delete cast;
+	cast = nullptr;
+}
+
+bool Player::isCasting() const
+{
+	return cast != nullptr && cast->isCasting();
+}
+
+void Player::setCastPassword(const std::string& password)
+{
+	if (cast) {
+		cast->setPassword(password);
+	}
+}
+
+bool Player::castHasPassword() const
+{
+	return cast && cast->hasPassword();
+}
+
+void Player::banCastViewer(const std::string& viewerName)
+{
+	if (cast) {
+		cast->banViewer(viewerName);
+	}
+}
+
+void Player::unbanCastViewer(const std::string& viewerName)
+{
+	if (cast) {
+		cast->unbanViewer(viewerName);
+	}
+}
+
+std::vector<std::string> Player::getCastViewers() const
+{
+	std::vector<std::string> viewerNames;
+	
+	if (cast) {
+		const auto& viewers = cast->getViewers();
+		for (const auto& viewer : viewers) {
+			viewerNames.push_back(viewer.name);
+		}
+	}
+	
+	return viewerNames;
 }
