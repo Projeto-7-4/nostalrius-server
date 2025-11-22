@@ -422,22 +422,34 @@ bool Items::loadItems()
 						items[id].getAbilities().fieldAbsorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] += static_cast<int16_t>(script.readNumber());
 					} else if (lowerIdentifier == "criticalhitchance") {
 						// Combat System - Special Skills
-						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = script.readNumber();
+						int32_t value = script.readNumber();
+						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = value;
+						std::cout << "[DEBUG ITEMS] Item " << id << " | CriticalHitChance = " << value << std::endl;
 					} else if (lowerIdentifier == "criticalhitamount") {
 						// Combat System - Special Skills
-						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITAMOUNT] = script.readNumber();
+						int32_t value = script.readNumber();
+						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITAMOUNT] = value;
+						std::cout << "[DEBUG ITEMS] Item " << id << " | CriticalHitAmount = " << value << std::endl;
 					} else if (lowerIdentifier == "lifeleechchance") {
 						// Combat System - Special Skills
-						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHCHANCE] = script.readNumber();
+						int32_t value = script.readNumber();
+						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHCHANCE] = value;
+						std::cout << "[DEBUG ITEMS] Item " << id << " | LifeLeechChance = " << value << std::endl;
 					} else if (lowerIdentifier == "lifeleechamount") {
 						// Combat System - Special Skills
-						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHAMOUNT] = script.readNumber();
+						int32_t value = script.readNumber();
+						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHAMOUNT] = value;
+						std::cout << "[DEBUG ITEMS] Item " << id << " | LifeLeechAmount = " << value << std::endl;
 					} else if (lowerIdentifier == "manaleechchance") {
 						// Combat System - Special Skills
-						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHCHANCE] = script.readNumber();
+						int32_t value = script.readNumber();
+						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHCHANCE] = value;
+						std::cout << "[DEBUG ITEMS] Item " << id << " | ManaLeechChance = " << value << std::endl;
 					} else if (lowerIdentifier == "manaleechamount") {
 						// Combat System - Special Skills
-						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHAMOUNT] = script.readNumber();
+						int32_t value = script.readNumber();
+						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHAMOUNT] = value;
+						std::cout << "[DEBUG ITEMS] Item " << id << " | ManaLeechAmount = " << value << std::endl;
 					} else if (identifier == "brightness") {
 						items[id].lightLevel = script.readNumber();
 					} else if (identifier == "lightcolor") {
