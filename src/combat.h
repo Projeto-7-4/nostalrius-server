@@ -82,6 +82,7 @@ struct CombatParams {
 	bool targetCasterOrTopMost = false;
 	bool aggressive = true;
 	bool useCharges = false;
+	bool skipImpactEffect = false;  // Combat System - Flag para bloquear impactEffect quando crítico
 };
 
 struct Impact

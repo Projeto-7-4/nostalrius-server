@@ -644,8 +644,11 @@ void Combat::combatTileEffects(const SpectatorVec& list, Creature* caster, Tile*
 		params.tileCallback->onTileCombat(caster, tile);
 	}
 
-	if (params.impactEffect != CONST_ME_NONE) {
+	// Combat System - Não enviar impactEffect se skipImpactEffect estiver ativo (crítico)
+	if (params.impactEffect != CONST_ME_NONE && !params.skipImpactEffect) {
 		Game::addMagicEffect(list, tile->getPosition(), params.impactEffect);
+	} else if (params.skipImpactEffect) {
+		std::cout << "[DEBUG CRITICAL] BLOQUEANDO impactEffect " << (int)params.impactEffect << " em combatTileEffects porque skipImpactEffect=true" << std::endl;
 	}
 }
 
@@ -1341,14 +1344,18 @@ bool Combat::doCombatHealth(Creature* caster, Creature* target, CombatDamage& da
 	if (canCombat) {
 		canCombat = CombatHealthFunc(caster, target, params, &damage);
 		
+		// Combat System - Setar flag para bloquear impactEffect se for crítico
+		if (damage.critical) {
+			const_cast<CombatParams&>(params).skipImpactEffect = true;
+			std::cout << "[DEBUG CRITICAL] Setando skipImpactEffect=true porque é crítico" << std::endl;
+		}
+		
 		// Combat System - Não enviar impactEffect se for crítico (efeito 173 já é enviado em combat.cpp)
-		if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
-			if (damage.critical) {
-				std::cout << "[DEBUG CRITICAL] BLOQUEANDO impactEffect " << (int)params.impactEffect << " porque é crítico" << std::endl;
-			} else {
-				std::cout << "[DEBUG CRITICAL] Enviando impactEffect " << (int)params.impactEffect << " (não é crítico)" << std::endl;
-				g_game.addMagicEffect(target->getPosition(), params.impactEffect);
-			}
+		if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE && !params.skipImpactEffect) {
+			std::cout << "[DEBUG CRITICAL] Enviando impactEffect " << (int)params.impactEffect << " (não é crítico)" << std::endl;
+			g_game.addMagicEffect(target->getPosition(), params.impactEffect);
+		} else if (params.skipImpactEffect) {
+			std::cout << "[DEBUG CRITICAL] BLOQUEANDO impactEffect " << (int)params.impactEffect << " porque skipImpactEffect=true" << std::endl;
 		}
 		
 		if (params.targetCallback) {
@@ -1371,7 +1378,8 @@ void Combat::doCombatHealth(Creature* caster, const Position& position, const Ar
 void Combat::doCombatMana(Creature* caster, Creature* target, CombatDamage& damage, const CombatParams& params)
 {
 	bool canCombat = !params.aggressive || (caster != target && Combat::canDoCombat(caster, target) == RETURNVALUE_NOERROR);
-	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
+	// Combat System - Não enviar impactEffect se skipImpactEffect estiver ativo (crítico)
+	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE && !params.skipImpactEffect) {
 		g_game.addMagicEffect(target->getPosition(), params.impactEffect);
 	}
 
@@ -1400,7 +1408,8 @@ void Combat::doCombatCondition(Creature* caster, const Position& position, const
 void Combat::doCombatCondition(Creature* caster, Creature* target, const CombatParams& params)
 {
 	bool canCombat = !params.aggressive || (caster != target && Combat::canDoCombat(caster, target) == RETURNVALUE_NOERROR);
-	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
+	// Combat System - Não enviar impactEffect se skipImpactEffect estiver ativo (crítico)
+	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE && !params.skipImpactEffect) {
 		g_game.addMagicEffect(target->getPosition(), params.impactEffect);
 	}
 
@@ -1424,7 +1433,8 @@ void Combat::doCombatDispel(Creature* caster, const Position& position, const Ar
 void Combat::doCombatDispel(Creature* caster, Creature* target, const CombatParams& params)
 {
 	bool canCombat = !params.aggressive || (caster != target && Combat::canDoCombat(caster, target) == RETURNVALUE_NOERROR);
-	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
+	// Combat System - Não enviar impactEffect se skipImpactEffect estiver ativo (crítico)
+	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE && !params.skipImpactEffect) {
 		g_game.addMagicEffect(target->getPosition(), params.impactEffect);
 	}
 
