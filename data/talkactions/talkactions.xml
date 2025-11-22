@@ -32,6 +32,8 @@
 	<talkaction words="/watch" separator=" " script="watch.lua" />
 	<talkaction words="/stopwatch" separator=" " script="stopwatch.lua" />
 	<talkaction words="/addskill" separator=" " script="add_skill.lua" />
+	<!-- Combat System Test -->
+	<talkaction words="/testcombat" script="testcombat.lua" />
 	<talkaction words="/mccheck" script="mccheck.lua" />
 	<talkaction words="/ghost" script="ghost.lua" />
 	<talkaction words="/clean" script="clean.lua" />
