@@ -43,6 +43,18 @@ bool Condition::setParam(ConditionParam_t param, int32_t value)
 	}
 }
 
+int32_t Condition::getParam(ConditionParam_t param)
+{
+	switch (param) {
+		case CONDITION_PARAM_TICKS:
+			return ticks;
+		case CONDITION_PARAM_SUBID:
+			return subId;
+		default:
+			return std::numeric_limits<int32_t>().max();
+	}
+}
+
 bool Condition::unserialize(PropStream& propStream)
 {
 	uint8_t attr_type;
@@ -314,6 +326,7 @@ void ConditionAttributes::addCondition(Creature* creature, const Condition* addC
 		//Apply the new one
 		memcpy(skills, conditionAttrs.skills, sizeof(skills));
 		memcpy(skillsPercent, conditionAttrs.skillsPercent, sizeof(skillsPercent));
+		memcpy(specialSkills, conditionAttrs.specialSkills, sizeof(specialSkills));
 		memcpy(stats, conditionAttrs.stats, sizeof(stats));
 		memcpy(statsPercent, conditionAttrs.statsPercent, sizeof(statsPercent));
 

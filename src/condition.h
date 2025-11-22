@@ -105,6 +105,7 @@ class Condition
 		static Condition* createCondition(PropStream& propStream);
 
 		virtual bool setParam(ConditionParam_t param, int32_t value);
+		virtual int32_t getParam(ConditionParam_t param);
 
 		//serialization
 		bool unserialize(PropStream& propStream);
@@ -152,6 +153,7 @@ class ConditionAttributes final : public ConditionGeneric
 		void addCondition(Creature* creature, const Condition* condition) final;
 
 		bool setParam(ConditionParam_t param, int32_t value) final;
+		int32_t getParam(ConditionParam_t param) final;
 
 		ConditionAttributes* clone() const final {
 			return new ConditionAttributes(*this);
@@ -164,6 +166,7 @@ class ConditionAttributes final : public ConditionGeneric
 	protected:
 		int32_t skills[SKILL_LAST + 1] = {};
 		int32_t skillsPercent[SKILL_LAST + 1] = {};
+		int32_t specialSkills[SPECIALSKILL_LAST + 1] = {};
 		int32_t stats[STAT_LAST + 1] = {};
 		int32_t statsPercent[STAT_LAST + 1] = {};
 		int32_t currentSkill = 0;
