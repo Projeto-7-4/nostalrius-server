@@ -104,21 +104,18 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// Send initial game data to viewer
-		// The viewer will receive all packets from the broadcaster automatically
-		// through the broadcastToViewers() function
+		// TODO: Send initial game state to viewer
+		// For now, the viewer connection will stay open and receive all
+		// packets from the broadcaster through broadcastToViewers()
 		
-		// Send game world light
-		sendWorldLight(g_game.getWorldLightInfo());
+		std::cout << "[Cast] SUCCESS! Viewer is now connected!" << std::endl;
+		std::cout << "[Cast] Viewer will receive live stream from " << broadcasterName << std::endl;
 		
-		// Send map description centered on broadcaster
-		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, false);
+		// Keep connection alive - don't disconnect or call login
+		// The viewer will receive broadcaster's packets automatically
+		// through the Cast::broadcastToViewers() mechanism
 		
-		std::cout << "[Cast] SUCCESS! Viewer is now watching the cast!" << std::endl;
-		std::cout << "[Cast] Viewer will receive all actions from " << broadcasterName << std::endl;
-		std::cout << "[Cast] Viewer count for " << broadcasterName << ": " << cast->getViewerCount() << std::endl;
-		
-		// Keep connection open - viewer will receive broadcaster's packets
+		// TODO: Implement full synchronization and initial world state
 		return;
 	}
 	
