@@ -104,9 +104,35 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// Send a success message and disconnect for now
-		// TODO: Implement full viewer synchronization
-		disconnectClient("Successfully connected to " + broadcasterName + "'s cast!\n\nViewer mode with live gameplay streaming is still being implemented.\n\nComing soon!");
+		// Create a virtual player that mirrors the broadcaster
+		player = new Player(getThis());
+		player->setName(name);
+		player->incrementReferenceCounter();
+		player->setID();
+		
+		// Copy broadcaster's position and stats
+		player->setPosition(broadcaster->getPosition());
+		player->setLevel(broadcaster->getLevel());
+		player->setHealth(broadcaster->getHealth());
+		player->setMaxHealth(broadcaster->getMaxHealth());
+		player->setMana(broadcaster->getMana());
+		player->setMaxMana(broadcaster->getMaxMana());
+		player->setSex(broadcaster->getSex());
+		player->setVocation(broadcaster->getVocationId());
+		
+		// Set viewer as spectator (invisible, can't interact)
+		player->setGhostMode(true);
+		
+		std::cout << "[Cast] Viewer setup complete, adding to game..." << std::endl;
+		
+		// Add viewer to the game
+		if (!g_game.placeCreature(player, player->getPosition(), false, true)) {
+			std::cout << "[Cast] ERROR: Failed to place viewer in game" << std::endl;
+			disconnectClient("Failed to join the cast. Please try again.");
+			return;
+		}
+		
+		std::cout << "[Cast] SUCCESS! Viewer is now in game watching the cast!" << std::endl;
 		return;
 	}
 	
