@@ -38,11 +38,15 @@ function onSay(player, words, param)
 	
 	-- Lista conditions
 	local hasConditions = false
-	for i = CONDITION_FIRST, CONDITION_LAST do
-		local condition = player:getCondition(i)
-		if condition then
-			hasConditions = true
-			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "  - Type: " .. i .. " | Ticks: " .. condition:getTicks())
+	local conditionFirst = CONDITION_FIRST
+	local conditionLast = CONDITION_LAST
+	if conditionFirst and conditionLast then
+		for i = conditionFirst, conditionLast do
+			local condition = player:getCondition(i)
+			if condition then
+				hasConditions = true
+				player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "  - Type: " .. i .. " | Ticks: " .. condition:getTicks())
+			end
 		end
 	end
 	
