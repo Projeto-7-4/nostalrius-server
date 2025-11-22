@@ -658,6 +658,9 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	// Cast System
 	case 0xF5: parseRequestCastList(msg); break;
 	
+	// Item Tooltip System
+	case 0xFE: parseRequestItemInfo(msg); break;
+	
 	default:
 	    std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex << static_cast<uint16_t>(recvbyte) << std::dec << "!" << std::endl;
 		break;
@@ -2522,4 +2525,43 @@ void ProtocolGame::sendCastList()
 	
 	writeToOutputBuffer(msg);
 	std::cout << "[Cast] Cast list sent successfully" << std::endl;
+}
+
+// Item Tooltip System
+void ProtocolGame::parseRequestItemInfo(NetworkMessage& msg)
+{
+	uint16_t itemId = msg.get<uint16_t>();
+	uint8_t count = msg.getByte();
+	
+	sendItemDescription(itemId, count);
+}
+
+void ProtocolGame::sendItemDescription(uint16_t itemId, uint8_t count)
+{
+	const ItemType& it = Item::items[itemId];
+	
+	if (it.id == 0) {
+		return;
+	}
+	
+	// Create a temporary item to get full description
+	Item* tempItem = Item::CreateItem(itemId, count);
+	if (!tempItem) {
+		return;
+	}
+	
+	// Get full description (same as "look" command)
+	std::string description = tempItem->getDescription(1); // lookDistance = 1 (close)
+	
+	// Clean up temp item
+	tempItem->decrementReferenceCounter();
+	
+	// Send to client
+	NetworkMessage msg;
+	msg.addByte(0xFE); // Item info opcode
+	msg.add<uint16_t>(itemId);
+	msg.addByte(count); // Send count back so client can cache correctly
+	msg.addString(description);
+	
+	writeToOutputBuffer(msg);
 }

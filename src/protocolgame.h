@@ -263,6 +263,10 @@ class ProtocolGame final : public Protocol
 	// Cast System
 	void parseRequestCastList(NetworkMessage& msg);
 	void sendCastList();
+	
+	// Item Tooltip System
+	void parseRequestItemInfo(NetworkMessage& msg);
+	void sendItemDescription(uint16_t itemId, uint8_t count);
 
 	//otclient
 	void parseExtendedOpcode(NetworkMessage& msg);
