@@ -31,10 +31,9 @@ function onSay(player, words, param)
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Life Leech Amount: " .. lifeAmount .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Chance: " .. manaChance .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Amount: " .. manaAmount .. "%")
-	
-	-- Mostra conditions ativas (removido temporariamente para evitar erro)
-	-- player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "")
-	-- player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Conditions ativas:")
+
+	return false
+end
 
 	return false
 end
