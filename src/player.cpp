@@ -3787,7 +3787,7 @@ void Player::stopWatchingCast()
 	sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "You stopped watching the cast.");
 }
 
-// Combat System - Get Special Skill from equipped items
+// Combat System - Get Special Skill from equipped items AND conditions
 uint16_t Player::getSpecialSkill(uint8_t skill) const
 {
 	if (skill > SPECIALSKILL_LAST) {
@@ -3796,6 +3796,12 @@ uint16_t Player::getSpecialSkill(uint8_t skill) const
 	}
 	
 	int32_t total = 0;
+	
+	// Primeiro, soma os valores das conditions (varSpecialSkills)
+	total += varSpecialSkills[skill];
+	if (varSpecialSkills[skill] != 0) {
+		std::cout << "[DEBUG getSpecialSkill] From conditions (varSpecialSkills): " << varSpecialSkills[skill] << std::endl;
+	}
 	
 	// Lista de slots para verificar
 	slots_t slots[] = {
@@ -3832,6 +3838,6 @@ uint16_t Player::getSpecialSkill(uint8_t skill) const
 		}
 	}
 	
-	std::cout << "[DEBUG getSpecialSkill] Final total: " << total << std::endl;
+	std::cout << "[DEBUG getSpecialSkill] Final total (items + conditions): " << total << std::endl;
 	return std::max<int32_t>(0, total);
 }
