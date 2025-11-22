@@ -73,7 +73,7 @@ class ProtocolGame final : public Protocol
 		void connect(uint32_t playerId, OperatingSystem_t operatingSystem);
 		void sendUpdateRequest();
 		void disconnectClient(const std::string& message) const;
-		
+
 		void release() final;
 
 		void checkCreatureAsKnown(uint32_t id, bool& known, uint32_t& removedKnown);
@@ -87,11 +87,11 @@ class ProtocolGame final : public Protocol
 		void onRecvFirstMessage(NetworkMessage& msg) final;
 
 		//Parse methods
-	void parseAutoWalk(NetworkMessage& msg);
-	void parseSetOutfit(NetworkMessage& msg);
-	void parseSay(NetworkMessage& msg);
+		void parseAutoWalk(NetworkMessage& msg);
+		void parseSetOutfit(NetworkMessage& msg);
+		void parseSay(NetworkMessage& msg);
 	void parseViewerSay(NetworkMessage& msg); // Cast System - viewer chat
-	void parseLookAt(NetworkMessage& msg);
+		void parseLookAt(NetworkMessage& msg);
 		void parseLookInBattleList(NetworkMessage& msg);
 		void parseFightModes(NetworkMessage& msg);
 		void parseAttack(NetworkMessage& msg);
@@ -290,8 +290,8 @@ class ProtocolGame final : public Protocol
 		uint32_t eventConnect = 0;
 		uint16_t version = CLIENT_VERSION_MIN;
 
-	bool debugAssertSent = false;
-	bool acceptPackets = false;
+		bool debugAssertSent = false;
+		bool acceptPackets = false;
 	bool isViewer = false;
 	Player* viewingBroadcaster = nullptr;
 	Player* viewerPlayer = nullptr; // Cast System - temporary player for chat

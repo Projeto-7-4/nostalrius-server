@@ -449,11 +449,6 @@ void ConditionAttributes::updateSpecialSkills(Player* player)
 		if (specialSkills[i]) {
 			std::cout << "[DEBUG] Setting special skill " << i << " to " << specialSkills[i] << std::endl;
 			player->setVarSpecialSkill(static_cast<SpecialSkills_t>(i), specialSkills[i]);
-			// Verificar se foi setado corretamente
-			uint16_t value = player->getSpecialSkill(static_cast<SpecialSkills_t>(i));
-			std::cout << "[DEBUG] After setVarSpecialSkill, getSpecialSkill(" << i << ") = " << value << std::endl;
-		} else {
-			std::cout << "[DEBUG] specialSkills[" << i << "] = 0 (não setado)" << std::endl;
 		}
 	}
 	std::cout << "[DEBUG] updateSpecialSkills finished!" << std::endl;
@@ -625,37 +620,31 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value)
 		// Combat System - Special Skills
 		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE: {
 			specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = value;
-			std::cout << "[DEBUG setParam] CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE = " << value << std::endl;
 			return true;
 		}
 
 		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITAMOUNT: {
 			specialSkills[SPECIALSKILL_CRITICALHITAMOUNT] = value;
-			std::cout << "[DEBUG setParam] CONDITION_PARAM_SPECIALSKILL_CRITICALHITAMOUNT = " << value << std::endl;
 			return true;
 		}
 
 		case CONDITION_PARAM_SPECIALSKILL_LIFELEECHCHANCE: {
 			specialSkills[SPECIALSKILL_LIFELEECHCHANCE] = value;
-			std::cout << "[DEBUG setParam] CONDITION_PARAM_SPECIALSKILL_LIFELEECHCHANCE = " << value << std::endl;
 			return true;
 		}
 
 		case CONDITION_PARAM_SPECIALSKILL_LIFELEECHAMOUNT: {
 			specialSkills[SPECIALSKILL_LIFELEECHAMOUNT] = value;
-			std::cout << "[DEBUG setParam] CONDITION_PARAM_SPECIALSKILL_LIFELEECHAMOUNT = " << value << std::endl;
 			return true;
 		}
 
 		case CONDITION_PARAM_SPECIALSKILL_MANALEECHCHANCE: {
 			specialSkills[SPECIALSKILL_MANALEECHCHANCE] = value;
-			std::cout << "[DEBUG setParam] CONDITION_PARAM_SPECIALSKILL_MANALEECHCHANCE = " << value << std::endl;
 			return true;
 		}
 
 		case CONDITION_PARAM_SPECIALSKILL_MANALEECHAMOUNT: {
 			specialSkills[SPECIALSKILL_MANALEECHAMOUNT] = value;
-			std::cout << "[DEBUG setParam] CONDITION_PARAM_SPECIALSKILL_MANALEECHAMOUNT = " << value << std::endl;
 			return true;
 		}
 

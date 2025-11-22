@@ -404,7 +404,9 @@ class Player final : public Creature, public Cylinder
 		void setVarSpecialSkill(SpecialSkills_t skill, int32_t modifier) {
 			varSpecialSkills[skill] += modifier;
 		}
-		uint16_t getSpecialSkill(uint8_t skill) const;
+		uint16_t getSpecialSkill(uint8_t skill) const {
+			return std::max<int32_t>(0, varSpecialSkills[skill]);
+		}
 
 		void setVarStats(stats_t stat, int32_t modifier);
 		int32_t getDefaultStats(stats_t stat) const;

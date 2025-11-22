@@ -14851,7 +14851,7 @@ TypeID      = 3288
 Name        = "a magic sword"
 Description = "It's the Sword of Valor"
 Flags       = {MultiUse,Take,Weapon}
-Attributes  = {Weight=4200,WeaponType=SWORD,Attack=48,Defense=35,CriticalHitChance=50,CriticalHitAmount=200,LifeLeechChance=30,LifeLeechAmount=10,ManaLeechChance=20,ManaLeechAmount=5}
+Attributes  = {Weight=4200,WeaponType=SWORD,Attack=48,Defense=35}
 
 TypeID      = 3289
 Name        = "a staff"
