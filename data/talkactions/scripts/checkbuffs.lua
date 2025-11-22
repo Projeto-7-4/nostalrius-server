@@ -32,27 +32,9 @@ function onSay(player, words, param)
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Chance: " .. manaChance .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Amount: " .. manaAmount .. "%")
 	
-	-- Mostra conditions ativas
-	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "")
-	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Conditions ativas:")
-	
-	-- Lista conditions
-	local hasConditions = false
-	local conditionFirst = CONDITION_FIRST
-	local conditionLast = CONDITION_LAST
-	if conditionFirst and conditionLast then
-		for i = conditionFirst, conditionLast do
-			local condition = player:getCondition(i)
-			if condition then
-				hasConditions = true
-				player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "  - Type: " .. i .. " | Ticks: " .. condition:getTicks())
-			end
-		end
-	end
-	
-	if not hasConditions then
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "  Nenhuma condition ativa")
-	end
+	-- Mostra conditions ativas (removido temporariamente para evitar erro)
+	-- player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "")
+	-- player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Conditions ativas:")
 
 	return false
 end
