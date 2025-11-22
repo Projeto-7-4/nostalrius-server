@@ -1336,12 +1336,15 @@ void Combat::postWeaponEffects(Player* player, Item* weapon)
 bool Combat::doCombatHealth(Creature* caster, Creature* target, CombatDamage& damage, const CombatParams& params)
 {
 	bool canCombat = !params.aggressive || (caster != target && Combat::canDoCombat(caster, target) == RETURNVALUE_NOERROR);
-	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
-		g_game.addMagicEffect(target->getPosition(), params.impactEffect);
-	}
-
+	
 	if (canCombat) {
 		canCombat = CombatHealthFunc(caster, target, params, &damage);
+		
+		// Combat System - Não enviar impactEffect se for crítico (efeito 173 já é enviado em combat.cpp)
+		if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE && !damage.critical) {
+			g_game.addMagicEffect(target->getPosition(), params.impactEffect);
+		}
+		
 		if (params.targetCallback) {
 			params.targetCallback->onTargetCombat(caster, target);
 		}
