@@ -104,7 +104,11 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// Set this protocol to accept packets (but viewer will have no player object)
+		// Mark this protocol as a viewer
+		isViewer = true;
+		viewingBroadcaster = broadcaster;
+		
+		// Set this protocol to accept packets
 		acceptPackets = true;
 		
 		// Send the complete game state from broadcaster's perspective
@@ -128,9 +132,8 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 			sendInventoryItem(static_cast<slots_t>(slot), broadcaster->getInventoryItem(static_cast<slots_t>(slot)));
 		}
 		
-		// CRITICAL: Set player to nullptr so viewer can't control anything
-		// This will block ALL commands in parsePacket() (line 466-472)
-		player = nullptr;
+		// CRITICAL: Keep player pointing to broadcaster for rendering
+		// but isViewer flag will block all commands
 		
 		// Add this protocol to auto-send pool
 		OutputMessagePool::getInstance().addProtocolToAutosend(shared_from_this());
@@ -287,6 +290,22 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 void ProtocolGame::logout(bool displayEffect, bool forced)
 {
 	//dispatcher thread
+	
+	// Special handling for viewers
+	if (isViewer) {
+		std::cout << "[Cast] Viewer disconnecting..." << std::endl;
+		
+		// Remove this viewer from the cast
+		if (viewingBroadcaster && viewingBroadcaster->cast) {
+			viewingBroadcaster->cast->removeViewer(shared_from_this());
+			std::cout << "[Cast] Viewer removed from cast" << std::endl;
+		}
+		
+		// Simply disconnect without affecting the game world
+		disconnect();
+		return;
+	}
+	
 	if (!player) {
 		return;
 	}
@@ -458,6 +477,22 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	}
 
 	uint8_t recvbyte = msg.getByte();
+
+	// CAST VIEWER PROTECTION: Block ALL commands except logout/disconnect
+	if (isViewer) {
+		if (recvbyte == 0x0F) {
+			// Allow disconnect
+			disconnect();
+			return;
+		}
+		if (recvbyte == 0x14) {
+			// Allow logout
+			g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::logout, getThis(), true, false)));
+			return;
+		}
+		// Block ALL other commands for viewers
+		return;
+	}
 
 	if (!player) {
 		if (recvbyte == 0x0F) {

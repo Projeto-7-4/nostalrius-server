@@ -287,6 +287,8 @@ class ProtocolGame final : public Protocol
 
 		bool debugAssertSent = false;
 		bool acceptPackets = false;
+		bool isViewer = false;
+		Player* viewingBroadcaster = nullptr;
 };
 
 #endif
