@@ -57,6 +57,7 @@ void ProtocolGame::release()
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
 	//dispatcher thread
+	std::cout << "[ProtocolGame] Login attempt - Name: " << name << ", AccountId: " << accountId << std::endl;
 	
 	// Check if this is a cast viewer
 	if (name.find("[Viewer] ") == 0) {
@@ -66,22 +67,38 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		// Find the broadcaster
 		Player* broadcaster = g_game.getPlayerByName(broadcasterName);
 		if (!broadcaster) {
+			std::cout << "[Cast] ERROR: Broadcaster " << broadcasterName << " is not online" << std::endl;
 			disconnectClient(broadcasterName + " is not online.");
 			return;
 		}
 		
+		std::cout << "[Cast] Found broadcaster: " << broadcaster->getName() << std::endl;
+		
 		// Check if broadcaster is casting
 		Cast* cast = broadcaster->getCast();
-		if (!cast || !cast->isCasting()) {
+		std::cout << "[Cast] Broadcaster cast pointer: " << (cast ? "valid" : "null") << std::endl;
+		
+		if (!cast) {
+			std::cout << "[Cast] ERROR: Broadcaster has no cast object" << std::endl;
 			disconnectClient(broadcasterName + " is not casting.");
 			return;
 		}
+		
+		if (!cast->isCasting()) {
+			std::cout << "[Cast] ERROR: Broadcaster cast is not active" << std::endl;
+			disconnectClient(broadcasterName + " is not casting.");
+			return;
+		}
+		
+		std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
 		
 		// Create viewer player (temporary, won't be saved)
 		player = new Player(getThis());
 		player->setName(name);
 		player->incrementReferenceCounter();
 		player->setID();
+		
+		std::cout << "[Cast] Viewer player created successfully" << std::endl;
 		
 		// TODO: Connect as viewer and start receiving broadcaster's data
 		std::cout << "[Cast] Viewer " << name << " connected to " << broadcasterName << "'s cast" << std::endl;
@@ -90,6 +107,8 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		disconnectClient("Cast viewing is being implemented. Coming soon!");
 		return;
 	}
+	
+	std::cout << "[ProtocolGame] Normal player login (not a viewer)" << std::endl;
 	
 	Player* foundPlayer = g_game.getPlayerByName(name);
 	if (!foundPlayer || g_config.getBoolean(ConfigManager::ALLOW_CLONES)) {
