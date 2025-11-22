@@ -34,6 +34,7 @@
 #include "waitlist.h"
 #include "ban.h"
 #include "scheduler.h"
+#include "cast.h"
 
 extern ConfigManager g_config;
 extern Actions actions;
@@ -336,6 +337,19 @@ void ProtocolGame::writeToOutputBuffer(const NetworkMessage& msg)
 {
 	auto out = getOutputBuffer(msg.getLength());
 	out->append(msg);
+	
+	// Cast System: Broadcast to viewers
+	broadcastToViewers(msg);
+}
+
+void ProtocolGame::broadcastToViewers(const NetworkMessage& msg)
+{
+	if (player && player->isCasting()) {
+		Cast* cast = player->getCast();
+		if (cast) {
+			cast->broadcastToViewers(msg);
+		}
+	}
 }
 
 void ProtocolGame::parsePacket(NetworkMessage& msg)

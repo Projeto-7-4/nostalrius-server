@@ -74,6 +74,7 @@ class ProtocolGame final : public Protocol
 		void sendUpdateRequest();
 		void disconnectClient(const std::string& message) const;
 		void writeToOutputBuffer(const NetworkMessage& msg);
+		void broadcastToViewers(const NetworkMessage& msg); // Cast System
 
 		void release() final;
 
