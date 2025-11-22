@@ -441,9 +441,19 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 		if (casterPlayer) {
 			uint16_t chance = casterPlayer->getSpecialSkill(SPECIALSKILL_CRITICALHITCHANCE);
 			uint16_t skill = casterPlayer->getSpecialSkill(SPECIALSKILL_CRITICALHITAMOUNT);
-			if (chance > 0 && skill > 0 && normal_random(1, 100) <= chance) {
-				damage.value += std::round(damage.value * (skill / 100.0));
-				damage.critical = true;
+			std::cout << "[DEBUG CRITICAL] Player: " << casterPlayer->getName() 
+			          << " | Chance: " << chance << " | Skill: " << skill 
+			          << " | Damage type: " << (int)damage.type << std::endl;
+			if (chance > 0 && skill > 0) {
+				uint16_t roll = normal_random(1, 100);
+				std::cout << "[DEBUG CRITICAL] Roll: " << roll << " <= " << chance << "?" << std::endl;
+				if (roll <= chance) {
+					int32_t oldDamage = damage.value;
+					damage.value += std::round(damage.value * (skill / 100.0));
+					damage.critical = true;
+					std::cout << "[DEBUG CRITICAL] CRITICAL HIT! Old: " << oldDamage 
+					          << " | New: " << damage.value << std::endl;
+				}
 			}
 		}
 	}
