@@ -2010,6 +2010,16 @@ void LuaScriptInterface::registerFunctions()
 
 	registerMethod("Player", "getTotalDamage", LuaScriptInterface::luaPlayerGetTotalDamage);
 
+	// Cast System
+	registerMethod("Player", "startCast", LuaScriptInterface::luaPlayerStartCast);
+	registerMethod("Player", "stopCast", LuaScriptInterface::luaPlayerStopCast);
+	registerMethod("Player", "isCasting", LuaScriptInterface::luaPlayerIsCasting);
+	registerMethod("Player", "setCastPassword", LuaScriptInterface::luaPlayerSetCastPassword);
+	registerMethod("Player", "castHasPassword", LuaScriptInterface::luaPlayerCastHasPassword);
+	registerMethod("Player", "banCastViewer", LuaScriptInterface::luaPlayerBanCastViewer);
+	registerMethod("Player", "unbanCastViewer", LuaScriptInterface::luaPlayerUnbanCastViewer);
+	registerMethod("Player", "getCastViewers", LuaScriptInterface::luaPlayerGetCastViewers);
+
 	// Monster
 	registerClass("Monster", "Creature", LuaScriptInterface::luaMonsterCreate);
 	registerMetaMethod("Monster", "__eq", LuaScriptInterface::luaUserdataCompare);
@@ -8486,6 +8496,117 @@ int LuaScriptInterface::luaPlayerGetTotalDamage(lua_State * L)
 		fightMode_t fightMode = static_cast<fightMode_t>(getNumber(L, 4, FIGHTMODE_BALANCED));
 		
 		lua_pushnumber(L, Combat::getTotalDamage(attackSkill, attackValue, fightMode));
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+// Cast System
+int LuaScriptInterface::luaPlayerStartCast(lua_State* L)
+{
+	// player:startCast([password])
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		std::string password = getString(L, 2, "");
+		pushBoolean(L, player->startCast(password));
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerStopCast(lua_State* L)
+{
+	// player:stopCast()
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		player->stopCast();
+		pushBoolean(L, true);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerIsCasting(lua_State* L)
+{
+	// player:isCasting()
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		pushBoolean(L, player->isCasting());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerSetCastPassword(lua_State* L)
+{
+	// player:setCastPassword(password)
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		std::string password = getString(L, 2);
+		player->setCastPassword(password);
+		pushBoolean(L, true);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerCastHasPassword(lua_State* L)
+{
+	// player:castHasPassword()
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		pushBoolean(L, player->castHasPassword());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerBanCastViewer(lua_State* L)
+{
+	// player:banCastViewer(viewerName)
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		std::string viewerName = getString(L, 2);
+		player->banCastViewer(viewerName);
+		pushBoolean(L, true);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerUnbanCastViewer(lua_State* L)
+{
+	// player:unbanCastViewer(viewerName)
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		std::string viewerName = getString(L, 2);
+		player->unbanCastViewer(viewerName);
+		pushBoolean(L, true);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerGetCastViewers(lua_State* L)
+{
+	// player:getCastViewers()
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		std::vector<std::string> viewers = player->getCastViewers();
+		lua_createtable(L, viewers.size(), 0);
+		int index = 0;
+		for (const auto& viewer : viewers) {
+			pushString(L, viewer);
+			lua_rawseti(L, -2, ++index);
+		}
 	} else {
 		lua_pushnil(L);
 	}
