@@ -104,15 +104,14 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// Create a temporary player to act as the viewer's "camera"
-		player = broadcaster;
-		player->incrementReferenceCounter();
-		
-		// Set this protocol to accept packets
+		// Set this protocol to accept packets (but viewer will have no player object)
 		acceptPackets = true;
 		
 		// Send the complete game state from broadcaster's perspective
 		std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
+		
+		// Temporarily set player to broadcaster just to send initial data
+		player = broadcaster;
 		
 		// Send self appearance (broadcaster)
 		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, true);
@@ -129,13 +128,19 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 			sendInventoryItem(static_cast<slots_t>(slot), broadcaster->getInventoryItem(static_cast<slots_t>(slot)));
 		}
 		
+		// CRITICAL: Set player to nullptr so viewer can't control anything
+		// This will block ALL commands in parsePacket() (line 466-472)
+		player = nullptr;
+		
 		// Add this protocol to auto-send pool
 		OutputMessagePool::getInstance().addProtocolToAutosend(shared_from_this());
 		
 		std::cout << "[Cast] SUCCESS! Viewer is now watching the cast!" << std::endl;
-		std::cout << "[Cast] Viewer will receive live stream from " << broadcasterName << std::endl;
+		std::cout << "[Cast] Viewer is READ-ONLY - all commands will be blocked" << std::endl;
+		std::cout << "[Cast] All broadcaster actions will be streamed automatically" << std::endl;
 		
 		// Viewer is now connected and will receive all broadcaster's packets
+		// through the Cast::broadcastToViewers() mechanism in writeToOutputBuffer()
 		return;
 	}
 	
