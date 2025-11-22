@@ -23,6 +23,7 @@
 #include "game.h"
 #include "pugicast.h"
 #include "scheduler.h"
+#include "cast.h"
 
 extern Chat* g_chat;
 extern Game g_game;
@@ -307,16 +308,26 @@ ChatChannel* Chat::createChannel(const Player& player, uint16_t channelId)
 			break;
 		}
 
-		case CHANNEL_PARTY: {
-			Party* party = player.getParty();
-			if (party) {
-				auto ret = partyChannels.emplace(std::make_pair(party, ChatChannel(channelId, "Party")));
-				return &ret.first->second;
-			}
-			break;
+	case CHANNEL_PARTY: {
+		Party* party = player.getParty();
+		if (party) {
+			auto ret = partyChannels.emplace(std::make_pair(party, ChatChannel(channelId, "Party")));
+			return &ret.first->second;
 		}
+		break;
+	}
 
-		case CHANNEL_PRIVATE: {
+	case CHANNEL_CAST: {
+		// Cast System - create channel for cast
+		Cast* cast = const_cast<Player&>(player).getCast();
+		if (cast && cast->isCasting()) {
+			auto ret = castChannels.emplace(std::make_pair(cast, ChatChannel(channelId, "Cast Channel")));
+			return &ret.first->second;
+		}
+		break;
+	}
+
+	case CHANNEL_PRIVATE: {
 			//only 1 private channel for each premium player
 			if (!player.isPremium() || getPrivateChannel(player)) {
 				return nullptr;
@@ -358,22 +369,38 @@ bool Chat::deleteChannel(const Player& player, uint16_t channelId)
 			break;
 		}
 
-		case CHANNEL_PARTY: {
-			Party* party = player.getParty();
-			if (!party) {
-				return false;
-			}
-
-			auto it = partyChannels.find(party);
-			if (it == partyChannels.end()) {
-				return false;
-			}
-
-			partyChannels.erase(it);
-			break;
+	case CHANNEL_PARTY: {
+		Party* party = player.getParty();
+		if (!party) {
+			return false;
 		}
 
-		default: {
+		auto it = partyChannels.find(party);
+		if (it == partyChannels.end()) {
+			return false;
+		}
+
+		partyChannels.erase(it);
+		break;
+	}
+
+	case CHANNEL_CAST: {
+		// Cast System - delete cast channel
+		Cast* cast = const_cast<Player&>(player).getCast();
+		if (!cast) {
+			return false;
+		}
+
+		auto it = castChannels.find(cast);
+		if (it == castChannels.end()) {
+			return false;
+		}
+
+		castChannels.erase(it);
+		break;
+	}
+
+	default: {
 			auto it = privateChannels.find(channelId);
 			if (it == privateChannels.end()) {
 				return false;
@@ -490,6 +517,21 @@ ChannelList Chat::getChannelList(const Player& player)
 		}
 	}
 
+	// Cast System - add Cast Channel
+	Cast* cast = const_cast<Player&>(player).getCast();
+	Player* broadcaster = const_cast<Player&>(player).viewingBroadcaster;
+	if ((cast && cast->isCasting()) || broadcaster) {
+		ChatChannel* channel = getChannel(player, CHANNEL_CAST);
+		if (channel) {
+			list.push_back(channel);
+		} else {
+			channel = createChannel(player, CHANNEL_CAST);
+			if (channel) {
+				list.push_back(channel);
+			}
+		}
+	}
+
 	for (const auto& it : normalChannels) {
 		ChatChannel* channel = getChannel(player, it.first);
 		if (channel) {
@@ -531,18 +573,42 @@ ChatChannel* Chat::getChannel(const Player& player, uint16_t channelId)
 			break;
 		}
 
-		case CHANNEL_PARTY: {
-			Party* party = player.getParty();
-			if (party) {
-				auto it = partyChannels.find(party);
-				if (it != partyChannels.end()) {
+	case CHANNEL_PARTY: {
+		Party* party = player.getParty();
+		if (party) {
+			auto it = partyChannels.find(party);
+			if (it != partyChannels.end()) {
+				return &it->second;
+			}
+		}
+		break;
+	}
+
+	case CHANNEL_CAST: {
+		// Cast System - get cast channel
+		// Check if player is broadcaster
+		Cast* cast = const_cast<Player&>(player).getCast();
+		if (cast && cast->isCasting()) {
+			auto it = castChannels.find(cast);
+			if (it != castChannels.end()) {
+				return &it->second;
+			}
+		}
+		// Check if player is viewer
+		Player* broadcaster = const_cast<Player&>(player).viewingBroadcaster;
+		if (broadcaster) {
+			cast = broadcaster->getCast();
+			if (cast && cast->isCasting()) {
+				auto it = castChannels.find(cast);
+				if (it != castChannels.end()) {
 					return &it->second;
 				}
 			}
-			break;
 		}
+		break;
+	}
 
-		default: {
+	default: {
 			auto it = normalChannels.find(channelId);
 			if (it != normalChannels.end()) {
 				ChatChannel& channel = it->second;

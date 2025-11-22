@@ -104,18 +104,34 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// Mark this protocol as a viewer
-		isViewer = true;
-		viewingBroadcaster = broadcaster;
-		
-		// Set this protocol to accept packets
-		acceptPackets = true;
-		
-		// Send the complete game state from broadcaster's perspective
-		std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
-		
-		// Temporarily set player to broadcaster just to send initial data
-		player = broadcaster;
+	// Mark this protocol as a viewer
+	isViewer = true;
+	viewingBroadcaster = broadcaster;
+	
+	// Create a temporary Player for the viewer (for chat purposes only)
+	viewerPlayer = new Player(getThis());
+	viewerPlayer->setName(name);
+	viewerPlayer->setID();
+	viewerPlayer->incrementReferenceCounter();
+	viewerPlayer->viewingBroadcaster = broadcaster;
+	
+	// Add viewer to Cast Channel
+	if (g_chat) {
+		ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
+		if (channel) {
+			channel->addUser(*viewerPlayer);
+			std::cout << "[Cast] Viewer added to Cast Channel" << std::endl;
+		}
+	}
+	
+	// Set this protocol to accept packets
+	acceptPackets = true;
+	
+	// Send the complete game state from broadcaster's perspective
+	std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
+	
+	// Temporarily set player to broadcaster just to send initial data
+	player = broadcaster;
 		
 		// Send self appearance (broadcaster)
 		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, true);
@@ -294,6 +310,18 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 	// Special handling for viewers
 	if (isViewer) {
 		std::cout << "[Cast] Viewer disconnecting..." << std::endl;
+		
+		// Remove viewer from Cast Channel
+		if (viewerPlayer && viewingBroadcaster && g_chat) {
+			ChatChannel* channel = g_chat->getChannel(*viewingBroadcaster, CHANNEL_CAST);
+			if (channel) {
+				channel->removeUser(*viewerPlayer);
+				std::cout << "[Cast] Viewer removed from Cast Channel" << std::endl;
+			}
+			// Clean up viewer player
+			viewerPlayer->decrementReferenceCounter();
+			viewerPlayer = nullptr;
+		}
 		
 		// Remove this viewer from the cast
 		if (viewingBroadcaster && viewingBroadcaster->cast) {

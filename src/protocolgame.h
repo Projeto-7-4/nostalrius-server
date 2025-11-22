@@ -285,10 +285,11 @@ class ProtocolGame final : public Protocol
 		uint32_t eventConnect = 0;
 		uint16_t version = CLIENT_VERSION_MIN;
 
-		bool debugAssertSent = false;
-		bool acceptPackets = false;
-		bool isViewer = false;
-		Player* viewingBroadcaster = nullptr;
+	bool debugAssertSent = false;
+	bool acceptPackets = false;
+	bool isViewer = false;
+	Player* viewingBroadcaster = nullptr;
+	Player* viewerPlayer = nullptr; // Cast System - temporary player for chat
 };
 
 #endif

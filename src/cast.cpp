@@ -21,8 +21,10 @@
 #include "cast.h"
 #include "game.h"
 #include "outputmessage.h"
+#include "chat.h"
 
 extern Game g_game;
+extern Chat* g_chat;
 
 Cast::Cast(Player* player) :
     owner(player),
@@ -48,6 +50,15 @@ bool Cast::startCast(const std::string& pwd)
     
     CastManager::getInstance().addCast(this);
     
+    // Cast System - create Cast Channel and add broadcaster
+    if (owner && g_chat) {
+        ChatChannel* channel = g_chat->createChannel(*owner, CHANNEL_CAST);
+        if (channel) {
+            channel->addUser(*owner);
+            owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Cast Channel opened! You can now chat with your viewers.");
+        }
+    }
+    
     if (owner) {
         std::ostringstream ss;
         ss << "Cast started! " << (password.empty() ? "Public stream" : "Private stream (password protected)");
@@ -64,6 +75,23 @@ void Cast::stopCast()
     }
     
     casting = false;
+    
+    // Cast System - remove all users from Cast Channel and delete it
+    if (owner && g_chat) {
+        ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
+        if (channel) {
+            // Remove all viewers from channel first
+            for (const auto& viewer : viewers) {
+                if (viewer.protocol && viewer.protocol->getPlayer()) {
+                    g_chat->removeUserFromChannel(*viewer.protocol->getPlayer(), CHANNEL_CAST);
+                }
+            }
+            // Remove broadcaster from channel
+            g_chat->removeUserFromChannel(*owner, CHANNEL_CAST);
+            // Delete the channel
+            g_chat->deleteChannel(*owner, CHANNEL_CAST);
+        }
+    }
     
     // Kick all viewers
     for (auto it = viewers.begin(); it != viewers.end(); ) {

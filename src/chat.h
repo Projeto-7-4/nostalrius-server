@@ -152,6 +152,7 @@ class Chat
 		std::map<uint16_t, PrivateChatChannel> privateChannels;
 		std::map<Party*, ChatChannel> partyChannels;
 		std::map<uint32_t, ChatChannel> guildChannels;
+		std::map<class Cast*, ChatChannel> castChannels; // Cast System
 
 		LuaScriptInterface scriptInterface;
 
