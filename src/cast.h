@@ -20,6 +20,10 @@
 #ifndef FS_CAST_H
 #define FS_CAST_H
 
+#include <set>
+#include <string>
+#include <vector>
+#include <functional>
 #include "player.h"
 #include "protocolgame.h"
 

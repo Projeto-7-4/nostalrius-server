@@ -20,6 +20,7 @@
 #include "otpch.h"
 #include "cast.h"
 #include "game.h"
+#include "outputmessage.h"
 
 extern Game g_game;
 
