@@ -57,6 +57,43 @@ void ProtocolGame::release()
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
 	//dispatcher thread
+	
+	// Check if this is a cast viewer
+	if (name.find("[Viewer] ") == 0) {
+		std::string broadcasterName = name.substr(9); // Remove "[Viewer] " prefix
+		std::cout << "[Cast] Viewer login attempt for broadcaster: " << broadcasterName << std::endl;
+		
+		// Find the broadcaster
+		Player* broadcaster = g_game.getPlayerByName(broadcasterName);
+		if (!broadcaster) {
+			disconnectClient(broadcasterName + " is not online.");
+			return;
+		}
+		
+		// Check if broadcaster is casting
+		Cast* cast = broadcaster->getCast();
+		if (!cast || !cast->isCasting()) {
+			disconnectClient(broadcasterName + " is not casting.");
+			return;
+		}
+		
+		// Create viewer player (temporary, won't be saved)
+		player = new Player(getThis());
+		player->setName(name);
+		player->incrementReferenceCounter();
+		player->setID();
+		
+		// Set basic viewer properties
+		player->setGroup(g_game.getPlayerGroup(1)); // Normal player group
+		
+		// TODO: Connect as viewer and start receiving broadcaster's data
+		std::cout << "[Cast] Viewer " << name << " connected to " << broadcasterName << "'s cast" << std::endl;
+		
+		// For now, disconnect with message
+		disconnectClient("Cast viewing is being implemented. Coming soon!");
+		return;
+	}
+	
 	Player* foundPlayer = g_game.getPlayerByName(name);
 	if (!foundPlayer || g_config.getBoolean(ConfigManager::ALLOW_CLONES)) {
 		player = new Player(getThis());
