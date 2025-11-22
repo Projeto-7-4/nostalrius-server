@@ -297,7 +297,7 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 		
 		// Remove this viewer from the cast
 		if (viewingBroadcaster && viewingBroadcaster->cast) {
-			viewingBroadcaster->cast->removeViewer(shared_from_this());
+			viewingBroadcaster->cast->removeViewer(this);
 			std::cout << "[Cast] Viewer removed from cast" << std::endl;
 		}
 		
