@@ -126,14 +126,15 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	
 	// Add this protocol as a viewer to the broadcaster's cast (with viewerPlayer)
 	// This will broadcast the "joined" message via channel->talk()
+	// IMPORTANT: Use viewerPlayer->getName() (e.g. "[Viewer 1]") not the original name
 	std::string viewerIp = convertIPToString(getIP());
 	std::cout << "[Cast] Calling cast->addViewer() with:" << std::endl;
 	std::cout << "[Cast]   protocol: " << this << std::endl;
-	std::cout << "[Cast]   name: " << name << std::endl;
+	std::cout << "[Cast]   name: " << viewerPlayer->getName() << " (using viewerPlayer name, not '" << name << "')" << std::endl;
 	std::cout << "[Cast]   viewerIp: " << viewerIp << std::endl;
 	std::cout << "[Cast]   viewerPlayer: " << viewerPlayer->getName() << std::endl;
 	
-	bool addResult = cast->addViewer(this, name, viewerIp, "", viewerPlayer);
+	bool addResult = cast->addViewer(this, viewerPlayer->getName(), viewerIp, "", viewerPlayer);
 	std::cout << "[Cast] addViewer() returned: " << (addResult ? "SUCCESS ✅" : "FAILED ❌") << std::endl;
 	
 	if (!addResult) {
