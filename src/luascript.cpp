@@ -2227,6 +2227,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Condition", "setTicks", LuaScriptInterface::luaConditionSetTicks);
 
 	registerMethod("Condition", "setParameter", LuaScriptInterface::luaConditionSetParameter);
+	registerMethod("Condition", "getParameter", LuaScriptInterface::luaConditionGetParameter);
 	registerMethod("Condition", "setSpeedDelta", LuaScriptInterface::luaConditionSetSpeedDelta);
 	registerMethod("Condition", "setOutfit", LuaScriptInterface::luaConditionSetOutfit);
 
@@ -10563,6 +10564,25 @@ int LuaScriptInterface::luaConditionSetParameter(lua_State* L)
 	}
 	condition->setParam(key, value);
 	pushBoolean(L, true);
+	return 1;
+}
+
+int LuaScriptInterface::luaConditionGetParameter(lua_State* L)
+{
+	// condition:getParameter(key)
+	Condition* condition = getUserdata<Condition>(L, 1);
+	if (!condition) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	int32_t value = condition->getParam(getNumber<ConditionParam_t>(L, 2));
+	if (value == std::numeric_limits<int32_t>().max()) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushnumber(L, value);
 	return 1;
 }
 

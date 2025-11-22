@@ -1111,6 +1111,7 @@ class LuaScriptInterface
 		static int luaConditionSetTicks(lua_State* L);
 
 		static int luaConditionSetParameter(lua_State* L);
+		static int luaConditionGetParameter(lua_State* L);
 		static int luaConditionSetSpeedDelta(lua_State* L);
 		static int luaConditionSetOutfit(lua_State* L);
 
