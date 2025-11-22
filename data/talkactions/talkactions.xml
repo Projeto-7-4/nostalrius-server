@@ -34,6 +34,7 @@
 	<talkaction words="/addskill" separator=" " script="add_skill.lua" />
 	<!-- Combat System Test -->
 	<talkaction words="/testcombat" script="testcombat.lua" />
+	<talkaction words="/checkbuffs" script="checkbuffs.lua" />
 	<!-- Item Attribute Editors -->
 	<talkaction words="/test" script="test.lua" />
 	<talkaction words="/superattack" script="superattack.lua" />
