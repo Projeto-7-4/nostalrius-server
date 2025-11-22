@@ -244,14 +244,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 
 	player->bankBalance = result->getNumber<uint64_t>("balance");
 
-	// Validação de sexo: apenas 0 (feminino) ou 1 (masculino)
-	uint16_t sexValue = result->getNumber<uint16_t>("sex");
-	if (sexValue > 1) {
-		std::cout << "[Warning - IOLoginData::loadPlayer] " << player->name 
-		          << " has invalid sex value (" << sexValue << "), defaulting to MALE (1)" << std::endl;
-		sexValue = 1; // Default para masculino
-	}
-	player->setSex(static_cast<PlayerSex_t>(sexValue));
+	player->setSex(static_cast<PlayerSex_t>(result->getNumber<uint16_t>("sex")));
 	player->level = std::max<uint32_t>(1, result->getNumber<uint32_t>("level"));
 
 	uint64_t experience = result->getNumber<uint64_t>("experience");

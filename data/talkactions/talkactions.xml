@@ -32,6 +32,15 @@
 	<talkaction words="/watch" separator=" " script="watch.lua" />
 	<talkaction words="/stopwatch" separator=" " script="stopwatch.lua" />
 	<talkaction words="/addskill" separator=" " script="add_skill.lua" />
+	<!-- Combat System Test -->
+	<talkaction words="/testcombat" script="testcombat.lua" />
+	<talkaction words="/checkbuffs" script="checkbuffs.lua" />
+	<!-- Item Attribute Editors -->
+	<talkaction words="/test" script="test.lua" />
+	<talkaction words="/superattack" script="superattack.lua" />
+	<talkaction words="/setattack" separator=" " script="setattack.lua" />
+	<talkaction words="/setdefense" separator=" " script="setdefense.lua" />
+	<talkaction words="/setarmor" separator=" " script="setarmor.lua" />
 	<talkaction words="/mccheck" script="mccheck.lua" />
 	<talkaction words="/ghost" script="ghost.lua" />
 	<talkaction words="/clean" script="clean.lua" />

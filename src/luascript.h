@@ -821,6 +821,8 @@ class LuaScriptInterface
 		static int luaPlayerGetSkillPercent(lua_State* L);
 		static int luaPlayerGetSkillTries(lua_State* L);
 		static int luaPlayerAddSkillTries(lua_State* L);
+		// Combat System - Special Skills
+		static int luaPlayerGetSpecialSkill(lua_State* L);
 
 		static int luaPlayerGetItemCount(lua_State* L);
 		static int luaPlayerGetItemById(lua_State* L);
@@ -1111,7 +1113,6 @@ class LuaScriptInterface
 		static int luaConditionSetTicks(lua_State* L);
 
 		static int luaConditionSetParameter(lua_State* L);
-		static int luaConditionGetParameter(lua_State* L);
 		static int luaConditionSetSpeedDelta(lua_State* L);
 		static int luaConditionSetOutfit(lua_State* L);
 

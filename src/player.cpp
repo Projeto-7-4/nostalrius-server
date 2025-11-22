@@ -3221,22 +3221,20 @@ void Player::changeSoul(int32_t soulChange)
 
 bool Player::canWear(uint32_t lookType) const
 {
-	// GODs podem usar qualquer outfit
 	if (group->access) {
 		return true;
 	}
 
-	// Validação por sexo (mantém separação masculino/feminino)
 	if (getSex() == PLAYERSEX_MALE) {
-		// Outfits masculinos: 128-134 (free e premium)
-		// Permite todos os masculinos, sem restrição de premium
-		if (lookType >= 128 && lookType <= 134) {
+		if (lookType >= 132 && lookType <= 134 && isPremium()) {
+			return true;
+		} else if (lookType >= 128 && lookType <= 131) {
 			return true;
 		}
 	} else if (getSex() == PLAYERSEX_FEMALE) {
-		// Outfits femininos: 136-142 (free e premium)
-		// Permite todos os femininos, sem restrição de premium
-		if (lookType >= 136 && lookType <= 142) {
+		if (lookType >= 140 && lookType <= 142 && isPremium()) {
+			return true;
+		} else if (lookType >= 136 && lookType <= 139) {
 			return true;
 		}
 	}

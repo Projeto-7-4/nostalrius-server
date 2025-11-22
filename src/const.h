@@ -50,6 +50,8 @@ enum MagicEffectClasses : uint8_t {
 	CONST_ME_SOUND_PURPLE = 23,
 	CONST_ME_SOUND_BLUE = 24,
 	CONST_ME_SOUND_WHITE = 25,
+	// Combat System - Critical Hit Effect
+	CONST_ME_CRITICAL_DAMAGE = 173,
 };
 
 enum ShootType_t : uint8_t {

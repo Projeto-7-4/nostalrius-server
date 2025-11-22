@@ -1137,6 +1137,13 @@ void LuaScriptInterface::registerFunctions()
 	registerEnum(CONDITION_PARAM_SKILL_FISHINGPERCENT)
 	registerEnum(CONDITION_PARAM_SUBID)
 	registerEnum(CONDITION_PARAM_FIELD)
+	// Combat System - Special Skills
+	registerEnum(CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE)
+	registerEnum(CONDITION_PARAM_SPECIALSKILL_CRITICALHITAMOUNT)
+	registerEnum(CONDITION_PARAM_SPECIALSKILL_LIFELEECHCHANCE)
+	registerEnum(CONDITION_PARAM_SPECIALSKILL_LIFELEECHAMOUNT)
+	registerEnum(CONDITION_PARAM_SPECIALSKILL_MANALEECHCHANCE)
+	registerEnum(CONDITION_PARAM_SPECIALSKILL_MANALEECHAMOUNT)
 
 	registerEnum(CONST_ME_NONE)
 	registerEnum(CONST_ME_DRAWBLOOD)
@@ -1362,6 +1369,14 @@ void LuaScriptInterface::registerFunctions()
 	registerEnum(SKILL_FISHING)
 	registerEnum(SKILL_MAGLEVEL)
 	registerEnum(SKILL_LEVEL)
+
+	// Combat System - Special Skills
+	registerEnum(SPECIALSKILL_CRITICALHITCHANCE)
+	registerEnum(SPECIALSKILL_CRITICALHITAMOUNT)
+	registerEnum(SPECIALSKILL_LIFELEECHCHANCE)
+	registerEnum(SPECIALSKILL_LIFELEECHAMOUNT)
+	registerEnum(SPECIALSKILL_MANALEECHCHANCE)
+	registerEnum(SPECIALSKILL_MANALEECHAMOUNT)
 
 	registerEnum(SKULL_NONE)
 	registerEnum(SKULL_YELLOW)
@@ -1925,6 +1940,8 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Player", "getEffectiveSkillLevel", LuaScriptInterface::luaPlayerGetEffectiveSkillLevel);
 	registerMethod("Player", "getSkillPercent", LuaScriptInterface::luaPlayerGetSkillPercent);
 	registerMethod("Player", "getSkillTries", LuaScriptInterface::luaPlayerGetSkillTries);
+	// Combat System - Special Skills
+	registerMethod("Player", "getSpecialSkill", LuaScriptInterface::luaPlayerGetSpecialSkill);
 	registerMethod("Player", "addSkillTries", LuaScriptInterface::luaPlayerAddSkillTries);
 
 	registerMethod("Player", "getItemCount", LuaScriptInterface::luaPlayerGetItemCount);
@@ -2227,7 +2244,6 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Condition", "setTicks", LuaScriptInterface::luaConditionSetTicks);
 
 	registerMethod("Condition", "setParameter", LuaScriptInterface::luaConditionSetParameter);
-	registerMethod("Condition", "getParameter", LuaScriptInterface::luaConditionGetParameter);
 	registerMethod("Condition", "setSpeedDelta", LuaScriptInterface::luaConditionSetSpeedDelta);
 	registerMethod("Condition", "setOutfit", LuaScriptInterface::luaConditionSetOutfit);
 
@@ -7343,6 +7359,20 @@ int LuaScriptInterface::luaPlayerGetSkillLevel(lua_State* L)
 	return 1;
 }
 
+// Combat System - Get Special Skill
+int LuaScriptInterface::luaPlayerGetSpecialSkill(lua_State* L)
+{
+	// player:getSpecialSkill(specialSkillType)
+	SpecialSkills_t specialSkillType = getNumber<SpecialSkills_t>(L, 2);
+	Player* player = getUserdata<Player>(L, 1);
+	if (player && specialSkillType <= SPECIALSKILL_LAST) {
+		lua_pushnumber(L, player->getSpecialSkill(specialSkillType));
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
 int LuaScriptInterface::luaPlayerGetEffectiveSkillLevel(lua_State* L)
 {
 	// player:getEffectiveSkillLevel(skillType)
@@ -10564,25 +10594,6 @@ int LuaScriptInterface::luaConditionSetParameter(lua_State* L)
 	}
 	condition->setParam(key, value);
 	pushBoolean(L, true);
-	return 1;
-}
-
-int LuaScriptInterface::luaConditionGetParameter(lua_State* L)
-{
-	// condition:getParameter(key)
-	Condition* condition = getUserdata<Condition>(L, 1);
-	if (!condition) {
-		lua_pushnil(L);
-		return 1;
-	}
-
-	int32_t value = condition->getParam(getNumber<ConditionParam_t>(L, 2));
-	if (value == std::numeric_limits<int32_t>().max()) {
-		lua_pushnil(L);
-		return 1;
-	}
-
-	lua_pushnumber(L, value);
 	return 1;
 }
 

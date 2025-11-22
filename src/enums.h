@@ -184,6 +184,7 @@ enum ConditionParam_t {
 	CONDITION_PARAM_HIT_DAMAGE = 48,
 	CONDITION_PARAM_COUNT = 49,
 	CONDITION_PARAM_MAX_COUNT = 50,
+	// Combat System - Special Skills
 	CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE = 51,
 	CONDITION_PARAM_SPECIALSKILL_CRITICALHITAMOUNT = 52,
 	CONDITION_PARAM_SPECIALSKILL_LIFELEECHCHANCE = 53,
@@ -223,6 +224,19 @@ enum stats_t {
 
 	STAT_FIRST = STAT_MAXHITPOINTS,
 	STAT_LAST = STAT_MAGICPOINTS
+};
+
+// Combat System - Special Skills
+enum SpecialSkills_t {
+	SPECIALSKILL_CRITICALHITCHANCE,
+	SPECIALSKILL_CRITICALHITAMOUNT,
+	SPECIALSKILL_LIFELEECHCHANCE,
+	SPECIALSKILL_LIFELEECHAMOUNT,
+	SPECIALSKILL_MANALEECHCHANCE,
+	SPECIALSKILL_MANALEECHAMOUNT,
+
+	SPECIALSKILL_FIRST = SPECIALSKILL_CRITICALHITCHANCE,
+	SPECIALSKILL_LAST = SPECIALSKILL_MANALEECHAMOUNT
 };
 
 enum formulaType_t {
@@ -375,6 +389,9 @@ struct CombatDamage
 	int32_t value;
 	int32_t min;
 	int32_t max;
+	// Combat System - Critical Hit and Leech flags
+	bool critical;
+	bool leeched;
 
 	CombatDamage()
 	{
@@ -382,6 +399,8 @@ struct CombatDamage
 		value = 0;
 		min = 0;
 		max = 0;
+		critical = false;
+		leeched = false;
 	}
 };
 

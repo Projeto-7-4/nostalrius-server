@@ -2025,7 +2025,7 @@ void ProtocolGame::sendOutfitWindow()
 			msg.add<uint16_t>(142);
 		} else {
 			msg.add<uint16_t>(139);
-		}
+	}
 	}
 
 	writeToOutputBuffer(msg);

@@ -43,18 +43,6 @@ bool Condition::setParam(ConditionParam_t param, int32_t value)
 	}
 }
 
-int32_t Condition::getParam(ConditionParam_t param)
-{
-	switch (param) {
-		case CONDITION_PARAM_TICKS:
-			return ticks;
-		case CONDITION_PARAM_SUBID:
-			return subId;
-		default:
-			return std::numeric_limits<int32_t>().max();
-	}
-}
-
 bool Condition::unserialize(PropStream& propStream)
 {
 	uint8_t attr_type;
@@ -326,7 +314,6 @@ void ConditionAttributes::addCondition(Creature* creature, const Condition* addC
 		//Apply the new one
 		memcpy(skills, conditionAttrs.skills, sizeof(skills));
 		memcpy(skillsPercent, conditionAttrs.skillsPercent, sizeof(skillsPercent));
-		memcpy(specialSkills, conditionAttrs.specialSkills, sizeof(specialSkills));
 		memcpy(stats, conditionAttrs.stats, sizeof(stats));
 		memcpy(statsPercent, conditionAttrs.statsPercent, sizeof(statsPercent));
 
@@ -366,17 +353,24 @@ void ConditionAttributes::serialize(PropWriteStream& propWriteStream)
 
 bool ConditionAttributes::startCondition(Creature* creature)
 {
+	std::cout << "[DEBUG] ConditionAttributes::startCondition called!" << std::endl;
 	if (!Condition::startCondition(creature)) {
+		std::cout << "[DEBUG] Condition::startCondition returned false!" << std::endl;
 		return false;
 	}
 
 	if (Player* player = creature->getPlayer()) {
+		std::cout << "[DEBUG] Applying condition to player: " << player->getName() << std::endl;
 		updatePercentSkills(player);
 		updateSkills(player);
 		updatePercentStats(player);
 		updateStats(player);
+		// Combat System - Apply Special Skills
+		std::cout << "[DEBUG] Calling updateSpecialSkills..." << std::endl;
+		updateSpecialSkills(player);
 	}
 
+	std::cout << "[DEBUG] startCondition finished successfully!" << std::endl;
 	return true;
 }
 
@@ -447,6 +441,19 @@ void ConditionAttributes::updateSkills(Player* player)
 	}
 }
 
+// Combat System - Update Special Skills
+void ConditionAttributes::updateSpecialSkills(Player* player)
+{
+	std::cout << "[DEBUG] ConditionAttributes::updateSpecialSkills called!" << std::endl;
+	for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
+		if (specialSkills[i]) {
+			std::cout << "[DEBUG] Setting special skill " << i << " to " << specialSkills[i] << std::endl;
+			player->setVarSpecialSkill(static_cast<SpecialSkills_t>(i), specialSkills[i]);
+		}
+	}
+	std::cout << "[DEBUG] updateSpecialSkills finished!" << std::endl;
+}
+
 bool ConditionAttributes::executeCondition(Creature* creature, int32_t interval)
 {
 	return ConditionGeneric::executeCondition(creature, interval);
@@ -480,6 +487,13 @@ void ConditionAttributes::endCondition(Creature* creature)
 
 		if (needUpdateStats) {
 			player->sendStats();
+		}
+
+		// Combat System - Remove Special Skills
+		for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
+			if (specialSkills[i]) {
+				player->setVarSpecialSkill(static_cast<SpecialSkills_t>(i), -specialSkills[i]);
+			}
 		}
 	}
 }
@@ -603,6 +617,7 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value)
 			return true;
 		}
 
+		// Combat System - Special Skills
 		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE: {
 			specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = value;
 			return true;
@@ -635,66 +650,6 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value)
 
 		default:
 			return ret;
-	}
-}
-
-int32_t ConditionAttributes::getParam(ConditionParam_t param)
-{
-	switch (param) {
-		case CONDITION_PARAM_SKILL_FIST:
-			return skills[SKILL_FIST];
-		case CONDITION_PARAM_SKILL_FISTPERCENT:
-			return skillsPercent[SKILL_FIST];
-		case CONDITION_PARAM_SKILL_CLUB:
-			return skills[SKILL_CLUB];
-		case CONDITION_PARAM_SKILL_CLUBPERCENT:
-			return skillsPercent[SKILL_CLUB];
-		case CONDITION_PARAM_SKILL_SWORD:
-			return skills[SKILL_SWORD];
-		case CONDITION_PARAM_SKILL_SWORDPERCENT:
-			return skillsPercent[SKILL_SWORD];
-		case CONDITION_PARAM_SKILL_AXE:
-			return skills[SKILL_AXE];
-		case CONDITION_PARAM_SKILL_AXEPERCENT:
-			return skillsPercent[SKILL_AXE];
-		case CONDITION_PARAM_SKILL_DISTANCE:
-			return skills[SKILL_DISTANCE];
-		case CONDITION_PARAM_SKILL_DISTANCEPERCENT:
-			return skillsPercent[SKILL_DISTANCE];
-		case CONDITION_PARAM_SKILL_SHIELD:
-			return skills[SKILL_SHIELD];
-		case CONDITION_PARAM_SKILL_SHIELDPERCENT:
-			return skillsPercent[SKILL_SHIELD];
-		case CONDITION_PARAM_SKILL_FISHING:
-			return skills[SKILL_FISHING];
-		case CONDITION_PARAM_SKILL_FISHINGPERCENT:
-			return skillsPercent[SKILL_FISHING];
-		case CONDITION_PARAM_STAT_MAXHITPOINTS:
-			return stats[STAT_MAXHITPOINTS];
-		case CONDITION_PARAM_STAT_MAXMANAPOINTS:
-			return stats[STAT_MAXMANAPOINTS];
-		case CONDITION_PARAM_STAT_MAGICPOINTS:
-			return stats[STAT_MAGICPOINTS];
-		case CONDITION_PARAM_STAT_MAXHITPOINTSPERCENT:
-			return statsPercent[STAT_MAXHITPOINTS];
-		case CONDITION_PARAM_STAT_MAXMANAPOINTSPERCENT:
-			return statsPercent[STAT_MAXMANAPOINTS];
-		case CONDITION_PARAM_STAT_MAGICPOINTSPERCENT:
-			return statsPercent[STAT_MAGICPOINTS];
-		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITCHANCE:
-			return specialSkills[SPECIALSKILL_CRITICALHITCHANCE];
-		case CONDITION_PARAM_SPECIALSKILL_CRITICALHITAMOUNT:
-			return specialSkills[SPECIALSKILL_CRITICALHITAMOUNT];
-		case CONDITION_PARAM_SPECIALSKILL_LIFELEECHCHANCE:
-			return specialSkills[SPECIALSKILL_LIFELEECHCHANCE];
-		case CONDITION_PARAM_SPECIALSKILL_LIFELEECHAMOUNT:
-			return specialSkills[SPECIALSKILL_LIFELEECHAMOUNT];
-		case CONDITION_PARAM_SPECIALSKILL_MANALEECHCHANCE:
-			return specialSkills[SPECIALSKILL_MANALEECHCHANCE];
-		case CONDITION_PARAM_SPECIALSKILL_MANALEECHAMOUNT:
-			return specialSkills[SPECIALSKILL_MANALEECHAMOUNT];
-		default:
-			return Condition::getParam(param);
 	}
 }
 
