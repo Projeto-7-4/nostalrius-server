@@ -104,13 +104,30 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
+		// Create a temporary player to act as the viewer's "camera"
+		player = broadcaster;
+		player->incrementReferenceCounter();
+		
 		// Set this protocol to accept packets
 		acceptPackets = true;
 		
-		// Send the broadcaster's view to the viewer
-		// This will make the viewer see exactly what the broadcaster sees
+		// Send the complete game state from broadcaster's perspective
 		std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
+		
+		// Send self appearance (broadcaster)
 		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, true);
+		
+		// Send map around broadcaster
+		sendMapDescription(broadcaster->getPosition());
+		
+		// Send broadcaster's stats
+		sendStats();
+		sendSkills();
+		
+		// Send broadcaster's inventory
+		for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
+			sendInventoryItem(static_cast<slots_t>(slot), broadcaster->getInventoryItem(static_cast<slots_t>(slot)));
+		}
 		
 		// Add this protocol to auto-send pool
 		OutputMessagePool::getInstance().addProtocolToAutosend(shared_from_this());
@@ -119,7 +136,6 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer will receive live stream from " << broadcasterName << std::endl;
 		
 		// Viewer is now connected and will receive all broadcaster's packets
-		// through the Cast::broadcastToViewers() mechanism
 		return;
 	}
 	
