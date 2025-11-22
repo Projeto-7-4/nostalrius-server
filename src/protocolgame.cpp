@@ -2070,6 +2070,8 @@ void ProtocolGame::parseExtendedOpcode(NetworkMessage& msg)
 
 #include "market.h"
 
+// TEMPORARY COMMENTED FOR CAST SYSTEM COMPILATION
+/*
 void ProtocolGame::parseMarketRequestOffers(NetworkMessage& msg)
 {
 	if (!player) {
@@ -2229,3 +2231,4 @@ void ProtocolGame::sendMarketSellResponse(bool success, const std::string& messa
 	
 	std::cout << "[Market] Sent sell response: " << (success ? "success" : "failed") << std::endl;
 }
+*/
