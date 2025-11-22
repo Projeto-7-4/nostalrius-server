@@ -149,6 +149,18 @@ void IOLoginData::updateOnlineStatus(uint32_t guid, bool login)
 	Database::getInstance()->executeQuery(query.str());
 }
 
+void IOLoginData::updateCastStatus(uint32_t guid, bool isCasting, uint32_t viewerCount)
+{
+	std::ostringstream query;
+	if (isCasting) {
+		query << "REPLACE INTO `active_casts` (`player_id`, `viewer_count`, `last_update`) VALUES (" 
+		      << guid << ", " << viewerCount << ", " << time(nullptr) << ')';
+	} else {
+		query << "DELETE FROM `active_casts` WHERE `player_id` = " << guid;
+	}
+	Database::getInstance()->executeQuery(query.str());
+}
+
 bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 {
 	Database* db = Database::getInstance();

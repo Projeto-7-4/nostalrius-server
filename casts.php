@@ -23,15 +23,15 @@ try {
         throw new Exception('Database connection failed: ' . $mysqli->connect_error);
     }
     
-    // Query to get all online players
-    // Note: Cast status is managed in memory by the server
-    // So we show all online players and server will validate on connection
+    // Query to get active casts only
     $query = "
         SELECT 
             p.name,
             p.level,
-            p.vocation
+            p.vocation,
+            ac.viewer_count
         FROM players p
+        INNER JOIN active_casts ac ON p.id = ac.player_id
         INNER JOIN players_online po ON p.id = po.player_id
         WHERE p.group_id = 1
         ORDER BY p.level DESC
@@ -46,8 +46,8 @@ try {
         while ($row = $result->fetch_assoc()) {
             $casts[] = [
                 'name' => $row['name'],
-                'viewers' => rand(0, 15), // Mock viewers for now
-                'description' => 'Level ' . $row['level'] . ' - Online',
+                'viewers' => $row['viewer_count'], // Real viewer count
+                'description' => 'Level ' . $row['level'] . ' - Live',
                 'password' => false
             ];
         }

@@ -37,8 +37,9 @@ class IOLoginData
 
 		static AccountType_t getAccountType(uint32_t accountId);
 		static void setAccountType(uint32_t accountId, AccountType_t accountType);
-		static void updateOnlineStatus(uint32_t guid, bool login);
-		static bool preloadPlayer(Player* player, const std::string& name);
+	static void updateOnlineStatus(uint32_t guid, bool login);
+	static void updateCastStatus(uint32_t guid, bool isCasting, uint32_t viewerCount = 0); // Cast System
+	static bool preloadPlayer(Player* player, const std::string& name);
 
 		static bool loadPlayerById(Player* player, uint32_t id);
 		static bool loadPlayerByName(Player* player, const std::string& name);

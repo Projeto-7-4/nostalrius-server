@@ -22,6 +22,7 @@
 #include "game.h"
 #include "outputmessage.h"
 #include "chat.h"
+#include "iologindata.h"
 
 extern Game g_game;
 extern Chat* g_chat;
@@ -51,6 +52,11 @@ bool Cast::startCast(const std::string& pwd)
     
     CastManager::getInstance().addCast(this);
     
+    // Cast System - update database
+    if (owner) {
+        IOLoginData::updateCastStatus(owner->getGUID(), true, 0);
+    }
+    
     // Cast System - create Cast Channel and add broadcaster
     if (owner && g_chat) {
         ChatChannel* channel = g_chat->createChannel(*owner, CHANNEL_CAST);
@@ -78,6 +84,11 @@ void Cast::stopCast()
     }
     
     casting = false;
+    
+    // Cast System - update database
+    if (owner) {
+        IOLoginData::updateCastStatus(owner->getGUID(), false, 0);
+    }
     
     // Kick all viewers (they will be removed from Cast Channel automatically in their logout())
     for (auto it = viewers.begin(); it != viewers.end(); ) {
@@ -136,7 +147,9 @@ bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, cons
     
     viewers.push_back(viewer);
     
+    // Update database
     if (owner) {
+        IOLoginData::updateCastStatus(owner->getGUID(), true, viewers.size());
         std::ostringstream ss;
         ss << "Viewer '" << viewerName << "' connected to your cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
         owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, ss.str());
@@ -152,7 +165,9 @@ void Cast::removeViewer(ProtocolGame* protocol)
             std::string viewerName = it->name;
             viewers.erase(it);
             
+            // Update database
             if (owner) {
+                IOLoginData::updateCastStatus(owner->getGUID(), true, viewers.size());
                 std::ostringstream ss;
                 ss << "Viewer '" << viewerName << "' disconnected from your cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
                 owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, ss.str());
@@ -170,6 +185,10 @@ void Cast::removeViewer(const std::string& viewerName)
                 it->protocol->disconnect();
             }
             viewers.erase(it);
+            // Update database
+            if (owner) {
+                IOLoginData::updateCastStatus(owner->getGUID(), true, viewers.size());
+            }
             break;
         }
     }
