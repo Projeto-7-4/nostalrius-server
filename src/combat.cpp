@@ -473,8 +473,8 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 
 		// Combat System - Critical Hit Visual Effect
 		if (damage.critical) {
-			// Usar CONST_ME_EXPLOSIONHIT que é suportado pelo cliente
-			g_game.addMagicEffect(target->getPosition(), CONST_ME_EXPLOSIONHIT);
+			// Usar CONST_ME_ENERGYHIT (12) - efeito de energia bem visível
+			g_game.addMagicEffect(target->getPosition(), CONST_ME_ENERGYHIT);
 		}
 
 		// Combat System - Life & Mana Leech
