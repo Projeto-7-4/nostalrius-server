@@ -3761,7 +3761,8 @@ bool Player::watchCast(Player* broadcaster, const std::string& password)
 	}
 	
 	// Add as viewer
-	if (!broadcastCast->addViewer(client.get(), getName(), getIP(), password)) {
+	std::string ipString = convertIPToString(getIP());
+	if (!broadcastCast->addViewer(client.get(), getName(), ipString, password)) {
 		return false;
 	}
 	
