@@ -29,7 +29,8 @@ try {
             p.name,
             p.level,
             p.vocation,
-            ac.viewer_count
+            ac.viewer_count,
+            ac.last_update
         FROM players p
         INNER JOIN active_casts ac ON p.id = ac.player_id
         INNER JOIN players_online po ON p.id = po.player_id
@@ -38,7 +39,17 @@ try {
         LIMIT 50
     ";
     
+    // Debug: log the query
+    error_log("[Casts.php] Executing query: " . $query);
+    
     $result = $mysqli->query($query);
+    
+    // Debug: log result count
+    if ($result) {
+        error_log("[Casts.php] Query returned " . $result->num_rows . " rows");
+    } else {
+        error_log("[Casts.php] Query failed: " . $mysqli->error);
+    }
     
     $casts = [];
     
