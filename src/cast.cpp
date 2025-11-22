@@ -194,11 +194,12 @@ bool Cast::isViewerBanned(const std::string& viewerName) const
 
 void Cast::broadcastToViewers(const NetworkMessage& msg)
 {
-    for (const auto& viewer : viewers) {
-        if (viewer.protocol) {
-            viewer.protocol->writeToOutputBuffer(msg);
-        }
-    }
+	for (const auto& viewer : viewers) {
+		if (viewer.protocol) {
+			auto out = viewer.protocol->getOutputBuffer(msg.getLength());
+			out->append(msg);
+		}
+	}
 }
 
 void Cast::broadcastToViewers(const std::function<void(ProtocolGame*)>& func)

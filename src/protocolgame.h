@@ -73,9 +73,7 @@ class ProtocolGame final : public Protocol
 		void connect(uint32_t playerId, OperatingSystem_t operatingSystem);
 		void sendUpdateRequest();
 		void disconnectClient(const std::string& message) const;
-		void writeToOutputBuffer(const NetworkMessage& msg);
-		void broadcastToViewers(const NetworkMessage& msg); // Cast System
-
+		
 		void release() final;
 
 		void checkCreatureAsKnown(uint32_t id, bool& known, uint32_t& removedKnown);
@@ -200,6 +198,10 @@ class ProtocolGame final : public Protocol
 		void sendUpdateTileItem(const Position& pos, uint32_t stackpos, const Item* item);
 		void sendRemoveTileThing(const Position& pos, uint32_t stackpos);
 		void sendUpdateTile(const Tile* tile, const Position& pos);
+
+		// Cast System
+		void writeToOutputBuffer(const NetworkMessage& msg);
+		void broadcastToViewers(const NetworkMessage& msg);
 
 		void sendAddCreature(const Creature* creature, const Position& pos, int32_t stackpos, bool isLogin);
 		void sendMoveCreature(const Creature* creature, const Position& newPos, int32_t newStackPos,
