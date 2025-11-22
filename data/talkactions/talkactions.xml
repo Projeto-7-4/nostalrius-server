@@ -52,4 +52,7 @@
 	<!-- test talkactions -->
 	<talkaction words="!z" separator=" " script="magiceffect.lua"/>
 	<talkaction words="!x" separator=" " script="animationeffect.lua"/>
+	<talkaction words="/testcombat" script="testcombat.lua"/>
+	<talkaction words="/superattack" script="superattack.lua"/>
+	<talkaction words="/checkbuffs" script="checkbuffs.lua"/>
 </talkactions>
