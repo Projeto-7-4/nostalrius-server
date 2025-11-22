@@ -110,29 +110,22 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		player->incrementReferenceCounter();
 		player->setID();
 		
-		// Copy broadcaster's position and stats
-		player->setPosition(broadcaster->getPosition());
-		player->setLevel(broadcaster->getLevel());
-		player->setHealth(broadcaster->getHealth());
-		player->setMaxHealth(broadcaster->getMaxHealth());
-		player->setMana(broadcaster->getMana());
-		player->setMaxMana(broadcaster->getMaxMana());
-		player->setSex(broadcaster->getSex());
-		player->setVocation(broadcaster->getVocationId());
+		// Copy basic broadcaster info
+		Position broadcasterPos = broadcaster->getPosition();
+		player->setPosition(broadcasterPos);
 		
-		// Set viewer as spectator (invisible, can't interact)
-		player->setGhostMode(true);
-		
+		std::cout << "[Cast] Viewer created at position: " << broadcasterPos << std::endl;
 		std::cout << "[Cast] Viewer setup complete, adding to game..." << std::endl;
 		
-		// Add viewer to the game
-		if (!g_game.placeCreature(player, player->getPosition(), false, true)) {
+		// Add viewer to the game at broadcaster's position
+		if (!g_game.placeCreature(player, broadcasterPos, false, true)) {
 			std::cout << "[Cast] ERROR: Failed to place viewer in game" << std::endl;
 			disconnectClient("Failed to join the cast. Please try again.");
 			return;
 		}
 		
 		std::cout << "[Cast] SUCCESS! Viewer is now in game watching the cast!" << std::endl;
+		std::cout << "[Cast] Viewer count for " << broadcasterName << ": " << cast->getViewerCount() << std::endl;
 		return;
 	}
 	
