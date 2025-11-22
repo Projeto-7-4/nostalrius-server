@@ -25,6 +25,8 @@
 #include "script.h"
 
 #include "pugicast.h"
+#include <algorithm>
+#include <cctype>
 
 extern MoveEvents* g_moveEvents;
 
@@ -234,8 +236,12 @@ bool Items::loadItems()
 
 					identifier = script.getIdentifier();
 					script.readSymbol('=');
+					
+					// Converter para minúsculas para comparação case-insensitive
+					std::string lowerIdentifier = identifier;
+					std::transform(lowerIdentifier.begin(), lowerIdentifier.end(), lowerIdentifier.begin(), ::tolower);
 
-					if (identifier == "waypoints") {
+					if (lowerIdentifier == "waypoints") {
 						items[id].speed = script.readNumber();
 					} else if (identifier == "capacity") {
 						items[id].maxItems = script.readNumber();
@@ -299,21 +305,21 @@ bool Items::loadItems()
 
 						items[id].wieldInfo |= WIELDINFO_VOCREQ;
 						items[id].vocationString = vocationString;
-					} else if (identifier == "weaponspecialeffect") {
+					} else if (lowerIdentifier == "weaponspecialeffect") {
 						items[id].weaponSpecialEffect = script.readNumber();
-					} else if (identifier == "beddirection") {
+					} else if (lowerIdentifier == "beddirection") {
 						items[id].bedPartnerDir = getDirection(script.readIdentifier());
-					} else if (identifier == "bedtarget") {
+					} else if (lowerIdentifier == "bedtarget") {
 						items[id].transformToOnUse = script.readNumber();
-					} else if (identifier == "bedfree") {
+					} else if (lowerIdentifier == "bedfree") {
 						items[id].transformToFree = script.readNumber();
-					} else if (identifier == "weight") {
+					} else if (lowerIdentifier == "weight") {
 						items[id].weight = script.readNumber();
-					} else if (identifier == "rotatetarget") {
+					} else if (lowerIdentifier == "rotatetarget") {
 						items[id].rotateTo = script.readNumber();
-					} else if (identifier == "destroytarget") {
+					} else if (lowerIdentifier == "destroytarget") {
 						items[id].destroyTarget = script.readNumber();
-					} else if (identifier == "slottype") {
+					} else if (lowerIdentifier == "slottype") {
 						identifier = asLowerCaseString(script.readIdentifier());
 						if (identifier == "head") {
 							items[id].slotPosition |= SLOTP_HEAD;
@@ -343,93 +349,93 @@ bool Items::loadItems()
 							script.error("Unknown slot position");
 							return false;
 						}
-					} else if (identifier == "speedboost") {
+					} else if (lowerIdentifier == "speedboost") {
 						items[id].getAbilities().speed = script.readNumber();
-					} else if (identifier == "fistboost") {
+					} else if (lowerIdentifier == "fistboost") {
 						items[id].getAbilities().skills[SKILL_FIST] = script.readNumber();
-					} else if (identifier == "swordboost") {
+					} else if (lowerIdentifier == "swordboost") {
 						items[id].getAbilities().skills[SKILL_SWORD] = script.readNumber();
-					} else if (identifier == "clubboost") {
+					} else if (lowerIdentifier == "clubboost") {
 						items[id].getAbilities().skills[SKILL_CLUB] = script.readNumber();
-					} else if (identifier == "axeboost") {
+					} else if (lowerIdentifier == "axeboost") {
 						items[id].getAbilities().skills[SKILL_AXE] = script.readNumber();
-					} else if (identifier == "shieldboost") {
+					} else if (lowerIdentifier == "shieldboost") {
 						items[id].getAbilities().skills[SKILL_SHIELD] = script.readNumber();
-					} else if (identifier == "distanceboost") {
+					} else if (lowerIdentifier == "distanceboost") {
 						items[id].getAbilities().skills[SKILL_DISTANCE] = script.readNumber();
-					} else if (identifier == "magicboost") {
+					} else if (lowerIdentifier == "magicboost") {
 						items[id].getAbilities().stats[STAT_MAGICPOINTS] = script.readNumber();
-					} else if (identifier == "percenthp") {
+					} else if (lowerIdentifier == "percenthp") {
 						items[id].getAbilities().statsPercent[STAT_MAXHITPOINTS] = script.readNumber();
-					} else if (identifier == "percentmp") {
+					} else if (lowerIdentifier == "percentmp") {
 						items[id].getAbilities().statsPercent[STAT_MAXMANAPOINTS] = script.readNumber();
-					} else if (identifier == "suppressdrunk") {
+					} else if (lowerIdentifier == "suppressdrunk") {
 						if (script.readNumber()) {
 							items[id].getAbilities().conditionSuppressions |= CONDITION_DRUNK;
 						}
-					} else if (identifier == "invisible") {
+					} else if (lowerIdentifier == "invisible") {
 						if (script.readNumber()) {
 							items[id].getAbilities().invisible = true;
 						}
-					} else if (identifier == "manashield") {
+					} else if (lowerIdentifier == "manashield") {
 						if (script.readNumber()) {
 							items[id].getAbilities().manaShield = true;
 						}
-					} else if (identifier == "healthticks") {
+					} else if (lowerIdentifier == "healthticks") {
 						Abilities& abilities = items[id].getAbilities();
 						abilities.regeneration = true;
 						abilities.healthTicks = script.readNumber();
-					} else if (identifier == "healthgain") {
+					} else if (lowerIdentifier == "healthgain") {
 						Abilities& abilities = items[id].getAbilities();
 						abilities.regeneration = true;
 						abilities.healthGain = script.readNumber();
-					} else if (identifier == "manaticks") {
+					} else if (lowerIdentifier == "manaticks") {
 						Abilities& abilities = items[id].getAbilities();
 						abilities.regeneration = true;
 						abilities.manaTicks = script.readNumber();
-					} else if (identifier == "managain") {
+					} else if (lowerIdentifier == "managain") {
 						Abilities& abilities = items[id].getAbilities();
 						abilities.regeneration = true;
 						abilities.manaGain = script.readNumber();
-					} else if (identifier == "absorbmagic") {
+					} else if (lowerIdentifier == "absorbmagic") {
 						int32_t percent = script.readNumber();
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_ENERGYDAMAGE)] += percent;
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] += percent;
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_EARTHDAMAGE)] += percent;
-					} else if (identifier == "absorbenergy") {
+					} else if (lowerIdentifier == "absorbenergy") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_ENERGYDAMAGE)] += script.readNumber();
-					} else if (identifier == "absorbfire") {
+					} else if (lowerIdentifier == "absorbfire") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] += script.readNumber();
-					} else if (identifier == "absorbpoison") {
+					} else if (lowerIdentifier == "absorbpoison") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_EARTHDAMAGE)] += script.readNumber();
-					} else if (identifier == "absorblifedrain") {
+					} else if (lowerIdentifier == "absorblifedrain") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_LIFEDRAIN)] += script.readNumber();
-					} else if (identifier == "absorbmanadrain") {
+					} else if (lowerIdentifier == "absorbmanadrain") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_MANADRAIN)] += script.readNumber();
-					} else if (identifier == "absorbphysical") {
+					} else if (lowerIdentifier == "absorbphysical") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_PHYSICALDAMAGE)] += script.readNumber();
-					} else if (identifier == "absorbhealing") {
+					} else if (lowerIdentifier == "absorbhealing") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_HEALING)] += script.readNumber();
-					} else if (identifier == "absorbundefined") {
+					} else if (lowerIdentifier == "absorbundefined") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_UNDEFINEDDAMAGE)] += script.readNumber();
-					} else if (identifier == "absorbfirefield") {
+					} else if (lowerIdentifier == "absorbfirefield") {
 						items[id].getAbilities().fieldAbsorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] += static_cast<int16_t>(script.readNumber());
-					} else if (identifier == "criticalhitchance") {
+					} else if (lowerIdentifier == "criticalhitchance") {
 						// Combat System - Special Skills
 						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = script.readNumber();
-					} else if (identifier == "criticalhitamount") {
+					} else if (lowerIdentifier == "criticalhitamount") {
 						// Combat System - Special Skills
 						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITAMOUNT] = script.readNumber();
-					} else if (identifier == "lifeleechchance") {
+					} else if (lowerIdentifier == "lifeleechchance") {
 						// Combat System - Special Skills
 						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHCHANCE] = script.readNumber();
-					} else if (identifier == "lifeleechamount") {
+					} else if (lowerIdentifier == "lifeleechamount") {
 						// Combat System - Special Skills
 						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHAMOUNT] = script.readNumber();
-					} else if (identifier == "manaleechchance") {
+					} else if (lowerIdentifier == "manaleechchance") {
 						// Combat System - Special Skills
 						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHCHANCE] = script.readNumber();
-					} else if (identifier == "manaleechamount") {
+					} else if (lowerIdentifier == "manaleechamount") {
 						// Combat System - Special Skills
 						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHAMOUNT] = script.readNumber();
 					} else if (identifier == "brightness") {
