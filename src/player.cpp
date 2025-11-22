@@ -3791,6 +3791,7 @@ void Player::stopWatchingCast()
 uint16_t Player::getSpecialSkill(uint8_t skill) const
 {
 	if (skill > SPECIALSKILL_LAST) {
+		std::cout << "[DEBUG getSpecialSkill] Skill " << (int)skill << " > SPECIALSKILL_LAST" << std::endl;
 		return 0;
 	}
 	
@@ -3809,16 +3810,28 @@ uint16_t Player::getSpecialSkill(uint8_t skill) const
 		CONST_SLOT_AMMO
 	};
 	
+	std::cout << "[DEBUG getSpecialSkill] Player: " << getName() << " | Skill: " << (int)skill << std::endl;
+	
 	// Itera sobre todos os slots equipados
 	for (slots_t slot : slots) {
 		Item* item = getInventoryItem(slot);
-		if (item && isItemAbilityEnabled(slot)) {
-			const ItemType& it = Item::items[item->getID()];
-			if (it.abilities && it.abilities->specialSkills[skill]) {
-				total += it.abilities->specialSkills[skill];
+		if (item) {
+			std::cout << "[DEBUG getSpecialSkill] Slot " << (int)slot << " | Item ID: " << item->getID() << " | Ability enabled: " << isItemAbilityEnabled(slot) << std::endl;
+			if (isItemAbilityEnabled(slot)) {
+				const ItemType& it = Item::items[item->getID()];
+				if (it.abilities) {
+					std::cout << "[DEBUG getSpecialSkill] Item has abilities | specialSkills[" << (int)skill << "] = " << it.abilities->specialSkills[skill] << std::endl;
+					if (it.abilities->specialSkills[skill]) {
+						total += it.abilities->specialSkills[skill];
+						std::cout << "[DEBUG getSpecialSkill] Added " << it.abilities->specialSkills[skill] << " | Total now: " << total << std::endl;
+					}
+				} else {
+					std::cout << "[DEBUG getSpecialSkill] Item has NO abilities" << std::endl;
+				}
 			}
 		}
 	}
 	
+	std::cout << "[DEBUG getSpecialSkill] Final total: " << total << std::endl;
 	return std::max<int32_t>(0, total);
 }
