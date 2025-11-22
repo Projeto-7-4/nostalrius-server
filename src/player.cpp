@@ -3786,3 +3786,39 @@ void Player::stopWatchingCast()
 	
 	sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "You stopped watching the cast.");
 }
+
+// Combat System - Get Special Skill from equipped items
+uint16_t Player::getSpecialSkill(uint8_t skill) const
+{
+	if (skill > SPECIALSKILL_LAST) {
+		return 0;
+	}
+	
+	int32_t total = 0;
+	
+	// Lista de slots para verificar
+	slots_t slots[] = {
+		CONST_SLOT_HEAD,
+		CONST_SLOT_NECKLACE,
+		CONST_SLOT_ARMOR,
+		CONST_SLOT_LEFT,
+		CONST_SLOT_RIGHT,
+		CONST_SLOT_LEGS,
+		CONST_SLOT_FEET,
+		CONST_SLOT_RING,
+		CONST_SLOT_AMMO
+	};
+	
+	// Itera sobre todos os slots equipados
+	for (slots_t slot : slots) {
+		Item* item = getInventoryItem(slot);
+		if (item && isItemAbilityEnabled(slot)) {
+			const ItemType& it = Item::items[item->getID()];
+			if (it.abilities && it.abilities->specialSkills[skill]) {
+				total += it.abilities->specialSkills[skill];
+			}
+		}
+	}
+	
+	return std::max<int32_t>(0, total);
+}
