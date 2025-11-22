@@ -113,6 +113,10 @@ bool ChatChannel::talk(const Player& fromPlayer, SpeakClasses type, const std::s
 	}
 
 	for (const auto& it : users) {
+		// Cast System - Skip sending to viewers (they receive via broadcast)
+		if (id == CHANNEL_CAST && it.second->viewingBroadcaster != nullptr) {
+			continue;
+		}
 		it.second->sendToChannel(&fromPlayer, type, text, id);
 	}
 	return true;

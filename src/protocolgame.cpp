@@ -115,10 +115,15 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	viewerPlayer->incrementReferenceCounter();
 	viewerPlayer->viewingBroadcaster = broadcaster;
 	
-	// Add viewer to Cast Channel (but don't add to users list to avoid duplicate messages)
+	// Add viewer to Cast Channel
 	if (g_chat) {
-		// Just send the channel to viewer's client (don't add to users list)
-		// The viewer will receive messages via Cast broadcast, not via normal channel system
+		ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
+		if (channel) {
+			// Add viewer to channel users so they can talk
+			channel->addUser(*viewerPlayer);
+			std::cout << "[Cast] Viewer added to Cast Channel users" << std::endl;
+		}
+		// Send channel to viewer's client
 		sendChannel(CHANNEL_CAST, "Cast Channel");
 		std::cout << "[Cast] Cast Channel sent to viewer client" << std::endl;
 	}
@@ -310,8 +315,13 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 	if (isViewer) {
 		std::cout << "[Cast] Viewer disconnecting..." << std::endl;
 		
-	// Clean up viewer player
-	if (viewerPlayer) {
+	// Remove viewer from Cast Channel and clean up
+	if (viewerPlayer && viewingBroadcaster && g_chat) {
+		ChatChannel* channel = g_chat->getChannel(*viewingBroadcaster, CHANNEL_CAST);
+		if (channel) {
+			channel->removeUser(*viewerPlayer);
+			std::cout << "[Cast] Viewer removed from Cast Channel" << std::endl;
+		}
 		viewerPlayer->decrementReferenceCounter();
 		viewerPlayer = nullptr;
 	}
