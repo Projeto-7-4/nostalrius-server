@@ -3731,3 +3731,57 @@ std::vector<std::string> Player::getCastViewers() const
 	
 	return viewerNames;
 }
+
+// Watching casts
+bool Player::watchCast(Player* broadcaster, const std::string& password)
+{
+	if (!broadcaster) {
+		return false;
+	}
+	
+	// Check if already watching
+	if (watchingCast) {
+		return false;
+	}
+	
+	// Get broadcaster's cast
+	Cast* broadcastCast = broadcaster->getCast();
+	if (!broadcastCast || !broadcastCast->isCasting()) {
+		return false;
+	}
+	
+	// Check password
+	if (broadcastCast->hasPassword() && !broadcastCast->checkPassword(password)) {
+		return false;
+	}
+	
+	// Check if banned
+	if (broadcastCast->isViewerBanned(getName())) {
+		return false;
+	}
+	
+	// Add as viewer
+	if (!broadcastCast->addViewer(client.get(), getName(), getIP(), password)) {
+		return false;
+	}
+	
+	watchingCast = broadcastCast;
+	
+	sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "You are now watching " + broadcaster->getName() + "'s cast.");
+	
+	return true;
+}
+
+void Player::stopWatchingCast()
+{
+	if (!watchingCast) {
+		return;
+	}
+	
+	// Remove from viewers
+	watchingCast->removeViewer(client.get());
+	
+	watchingCast = nullptr;
+	
+	sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "You stopped watching the cast.");
+}

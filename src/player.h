@@ -959,6 +959,7 @@ class Player final : public Creature, public Cylinder
 		GuildWarList guildWarList;
 
 		Cast* cast = nullptr;
+		Cast* watchingCast = nullptr;
 
 		std::forward_list<Party*> invitePartyList;
 		std::forward_list<std::string> learnedInstantSpellList;
@@ -1098,6 +1099,12 @@ class Player final : public Creature, public Cylinder
 		void unbanCastViewer(const std::string& viewerName);
 		std::vector<std::string> getCastViewers() const;
 		Cast* getCast() const { return cast; }
+		
+		// Watching casts
+		bool watchCast(Player* broadcaster, const std::string& password = "");
+		void stopWatchingCast();
+		bool isWatchingCast() const { return watchingCast != nullptr; }
+		Cast* getWatchingCast() const { return watchingCast; }
 
 		friend class Game;
 		friend class Npc;

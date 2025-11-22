@@ -29,6 +29,8 @@
 	<talkaction words="/summon" separator=" " script="place_summon.lua" />
 	<talkaction words="/chameleon" separator=" " script="chameleon.lua" />
 	<talkaction words="/cast" separator=" " script="cast.lua" />
+	<talkaction words="/watch" separator=" " script="watch.lua" />
+	<talkaction words="/stopwatch" separator=" " script="stopwatch.lua" />
 	<talkaction words="/addskill" separator=" " script="add_skill.lua" />
 	<talkaction words="/mccheck" script="mccheck.lua" />
 	<talkaction words="/ghost" script="ghost.lua" />
