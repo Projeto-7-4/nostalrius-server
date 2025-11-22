@@ -474,6 +474,7 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 		// Combat System - Critical Hit Visual Effect
 		if (damage.critical) {
 			// Efeito 173 (Critical Damage) - agora disponível no Tibia.dat
+			std::cout << "[DEBUG CRITICAL] Enviando efeito 173 para posição: " << target->getPosition().x << "," << target->getPosition().y << "," << target->getPosition().z << std::endl;
 			g_game.addMagicEffect(target->getPosition(), CONST_ME_CRITICAL_DAMAGE);
 		}
 
@@ -1341,8 +1342,13 @@ bool Combat::doCombatHealth(Creature* caster, Creature* target, CombatDamage& da
 		canCombat = CombatHealthFunc(caster, target, params, &damage);
 		
 		// Combat System - Não enviar impactEffect se for crítico (efeito 173 já é enviado em combat.cpp)
-		if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE && !damage.critical) {
-			g_game.addMagicEffect(target->getPosition(), params.impactEffect);
+		if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
+			if (damage.critical) {
+				std::cout << "[DEBUG CRITICAL] BLOQUEANDO impactEffect " << (int)params.impactEffect << " porque é crítico" << std::endl;
+			} else {
+				std::cout << "[DEBUG CRITICAL] Enviando impactEffect " << (int)params.impactEffect << " (não é crítico)" << std::endl;
+				g_game.addMagicEffect(target->getPosition(), params.impactEffect);
+			}
 		}
 		
 		if (params.targetCallback) {
