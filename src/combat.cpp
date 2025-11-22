@@ -473,13 +473,8 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 
 		// Combat System - Critical Hit Visual Effect
 		if (damage.critical) {
-			// Tentar CONST_ME_CRITICAL_DAMAGE (173) - efeito original do Tibia
-			// Se não aparecer, o cliente não tem esse sprite no Tibia.dat
+			// Efeito 173 (Critical Damage) - agora disponível no Tibia.dat
 			g_game.addMagicEffect(target->getPosition(), CONST_ME_CRITICAL_DAMAGE);
-			
-			// Efeito adicional para garantir visibilidade (efeito de explosão)
-			// Se o 173 não aparecer, pelo menos este vai aparecer
-			g_game.addMagicEffect(target->getPosition(), CONST_ME_EXPLOSIONHIT);
 		}
 
 		// Combat System - Life & Mana Leech
