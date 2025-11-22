@@ -104,27 +104,21 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// Create a virtual player that mirrors the broadcaster
-		player = new Player(getThis());
-		player->setName(name);
-		player->incrementReferenceCounter();
-		player->setID();
+		// Send initial game data to viewer
+		// The viewer will receive all packets from the broadcaster automatically
+		// through the broadcastToViewers() function
 		
-		// Get broadcaster's position
-		Position broadcasterPos = broadcaster->getPosition();
+		// Send game world light
+		sendWorldLight(g_game.getWorldLightInfo());
 		
-		std::cout << "[Cast] Viewer created, position: " << broadcasterPos << std::endl;
-		std::cout << "[Cast] Adding viewer to game..." << std::endl;
+		// Send map description centered on broadcaster
+		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, false);
 		
-		// Add viewer to the game at broadcaster's position
-		if (!g_game.placeCreature(player, broadcasterPos, false, true)) {
-			std::cout << "[Cast] ERROR: Failed to place viewer in game" << std::endl;
-			disconnectClient("Failed to join the cast. Please try again.");
-			return;
-		}
-		
-		std::cout << "[Cast] SUCCESS! Viewer is now in game watching the cast!" << std::endl;
+		std::cout << "[Cast] SUCCESS! Viewer is now watching the cast!" << std::endl;
+		std::cout << "[Cast] Viewer will receive all actions from " << broadcasterName << std::endl;
 		std::cout << "[Cast] Viewer count for " << broadcasterName << ": " << cast->getViewerCount() << std::endl;
+		
+		// Keep connection open - viewer will receive broadcaster's packets
 		return;
 	}
 	
