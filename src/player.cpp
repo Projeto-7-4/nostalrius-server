@@ -3798,6 +3798,7 @@ uint16_t Player::getSpecialSkill(uint8_t skill) const
 	int32_t total = 0;
 	
 	// Primeiro, soma os valores das conditions (varSpecialSkills)
+	std::cout << "[DEBUG getSpecialSkill] varSpecialSkills[" << (int)skill << "] = " << varSpecialSkills[skill] << std::endl;
 	total += varSpecialSkills[skill];
 	if (varSpecialSkills[skill] != 0) {
 		std::cout << "[DEBUG getSpecialSkill] From conditions (varSpecialSkills): " << varSpecialSkills[skill] << std::endl;
