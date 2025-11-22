@@ -49,8 +49,8 @@ public:
     bool isCasting() const { return casting; }
     
     // Viewer management
-    bool addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& password = "");
-    void removeViewer(ProtocolGame* protocol);
+    bool addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& password = "", Player* viewerPlayer = nullptr);
+    void removeViewer(ProtocolGame* protocol, Player* viewerPlayer = nullptr);
     void removeViewer(const std::string& viewerName);
     size_t getViewerCount() const { return viewers.size(); }
     const std::vector<CastViewer>& getViewers() const { return viewers; }
@@ -74,6 +74,7 @@ public:
     Player* getOwner() const { return owner; }
     const std::string& getDescription() const { return description; }
     void setDescription(const std::string& desc) { description = desc; }
+    uint32_t getNextViewerNumber() { return ++viewerCounter; } // Get next viewer number
 
 private:
     Player* owner;
@@ -83,6 +84,7 @@ private:
     std::string description;
     bool casting;
     time_t startTime;
+    uint32_t viewerCounter; // Cast System - counter for viewer numbering
 };
 
 // Global cast manager

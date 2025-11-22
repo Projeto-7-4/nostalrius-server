@@ -894,9 +894,27 @@ class Player final : public Creature, public Cylinder
 		House* getEditHouse(uint32_t& windowTextId, uint32_t& listId);
 		void setEditHouse(House* house, uint32_t listId = 0);
 
-		void learnInstantSpell(const std::string& spellName);
-		void forgetInstantSpell(const std::string& spellName);
-		bool hasLearnedInstantSpell(const std::string& spellName) const;
+	void learnInstantSpell(const std::string& spellName);
+	void forgetInstantSpell(const std::string& spellName);
+	bool hasLearnedInstantSpell(const std::string& spellName) const;
+
+	// Cast System
+	bool startCast(const std::string& password = "");
+	void stopCast();
+	bool isCasting() const;
+	void setCastPassword(const std::string& password);
+	bool castHasPassword() const;
+	void banCastViewer(const std::string& viewerName);
+	void unbanCastViewer(const std::string& viewerName);
+	std::vector<std::string> getCastViewers() const;
+	Cast* getCast() const { return cast; }
+	
+	// Watching casts
+	bool watchCast(Player* broadcaster, const std::string& password = "");
+	void stopWatchingCast();
+	bool isWatchingCast() const { return watchingCast != nullptr; }
+	Cast* getWatchingCast() const { return watchingCast; }
+	Player* viewingBroadcaster = nullptr; // Cast System - broadcaster being watched (public for chat system)
 
 	protected:
 		std::forward_list<Condition*> getMuteConditions() const;
@@ -1086,27 +1104,10 @@ class Player final : public Creature, public Cylinder
 		uint32_t getConditionSuppressions() const final {
 			return conditionSuppressions;
 		}
-		uint16_t getLookCorpse() const final;
-		void getPathSearchParams(const Creature* creature, FindPathParams& fpp) const final;
+	uint16_t getLookCorpse() const final;
+	void getPathSearchParams(const Creature* creature, FindPathParams& fpp) const final;
 
-		// Cast System
-		bool startCast(const std::string& password = "");
-		void stopCast();
-		bool isCasting() const;
-		void setCastPassword(const std::string& password);
-		bool castHasPassword() const;
-		void banCastViewer(const std::string& viewerName);
-		void unbanCastViewer(const std::string& viewerName);
-		std::vector<std::string> getCastViewers() const;
-		Cast* getCast() const { return cast; }
-		
-		// Watching casts
-		bool watchCast(Player* broadcaster, const std::string& password = "");
-		void stopWatchingCast();
-		bool isWatchingCast() const { return watchingCast != nullptr; }
-		Cast* getWatchingCast() const { return watchingCast; }
-
-		friend class Game;
+	friend class Game;
 		friend class Npc;
 		friend class LuaScriptInterface;
 		friend class Map;

@@ -90,32 +90,80 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 			return;
 		}
 		
-		std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
-		
-		// Add this protocol as a viewer to the broadcaster's cast
-		std::string viewerIp = convertIPToString(getIP());
-		if (!cast->addViewer(this, name, viewerIp, "")) {
-			std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
-			disconnectClient("Failed to join the cast. Please try again.");
-			return;
+	std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
+	
+	// Mark this protocol as a viewer
+	isViewer = true;
+	viewingBroadcaster = broadcaster;
+	
+	// Get viewer number from cast
+	uint32_t viewerNumber = cast->getNextViewerNumber();
+	
+	// Create a temporary Player for the viewer (for chat purposes only)
+	viewerPlayer = new Player(getThis());
+	std::ostringstream viewerName;
+	viewerName << "[Viewer " << viewerNumber << "]";
+	viewerPlayer->setName(viewerName.str());
+	viewerPlayer->setID();
+	viewerPlayer->incrementReferenceCounter();
+	viewerPlayer->viewingBroadcaster = broadcaster;
+	
+	std::cout << "[Cast] Created viewerPlayer: " << viewerPlayer->getName() << ", ID: " << viewerPlayer->getID() << std::endl;
+	std::cout << "[Cast] Current viewer count BEFORE adding: " << cast->getViewerCount() << std::endl;
+	
+	// Add viewer to Cast Channel FIRST (so they can send/receive messages)
+	if (g_chat) {
+		ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
+		if (channel) {
+			// Add viewer to channel users so they can talk
+			channel->addUser(*viewerPlayer);
+			std::cout << "[Cast] Viewer added to Cast Channel users" << std::endl;
 		}
-		
-		std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
-		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
-		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
-		
-		// Mark this protocol as a viewer
-		isViewer = true;
-		viewingBroadcaster = broadcaster;
-		
-		// Set this protocol to accept packets
-		acceptPackets = true;
-		
-		// Send the complete game state from broadcaster's perspective
-		std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
-		
-		// Temporarily set player to broadcaster just to send initial data
-		player = broadcaster;
+		// Send channel to viewer's client
+		sendChannel(CHANNEL_CAST, "Cast Channel");
+		std::cout << "[Cast] Cast Channel sent to viewer client" << std::endl;
+	}
+	
+	// Add this protocol as a viewer to the broadcaster's cast (with viewerPlayer)
+	// This will broadcast the "joined" message via channel->talk()
+	// IMPORTANT: Use viewerPlayer->getName() (e.g. "[Viewer 1]") not the original name
+	std::string viewerIp = convertIPToString(getIP());
+	std::cout << "[Cast] Calling cast->addViewer() with:" << std::endl;
+	std::cout << "[Cast]   protocol: " << this << std::endl;
+	std::cout << "[Cast]   name: " << viewerPlayer->getName() << " (using viewerPlayer name, not '" << name << "')" << std::endl;
+	std::cout << "[Cast]   viewerIp: " << viewerIp << std::endl;
+	std::cout << "[Cast]   viewerPlayer: " << viewerPlayer->getName() << std::endl;
+	
+	bool addResult = cast->addViewer(this, viewerPlayer->getName(), viewerIp, "", viewerPlayer);
+	std::cout << "[Cast] addViewer() returned: " << (addResult ? "SUCCESS ✅" : "FAILED ❌") << std::endl;
+	
+	if (!addResult) {
+		std::cout << "[Cast] ERROR: Failed to add viewer to cast - DISCONNECTING CLIENT" << std::endl;
+		// Remove from channel if addViewer failed
+		if (g_chat) {
+			ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
+			if (channel) {
+				channel->removeUser(*viewerPlayer);
+			}
+		}
+		viewerPlayer->decrementReferenceCounter();
+		viewerPlayer = nullptr;
+		disconnectClient("Failed to join the cast. Please try again.");
+		return;
+	}
+	
+	std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
+	std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
+	std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
+	
+	// Set this protocol to accept packets
+	acceptPackets = true;
+	
+	// Send the complete game state from broadcaster's perspective
+	std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
+	
+	// Temporarily set player to broadcaster just to send initial data
+	player = broadcaster;
 		
 		// Send self appearance (broadcaster)
 		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, true);
@@ -295,11 +343,22 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 	if (isViewer) {
 		std::cout << "[Cast] Viewer disconnecting..." << std::endl;
 		
-		// Remove this viewer from the cast
-		if (viewingBroadcaster && viewingBroadcaster->cast) {
-			viewingBroadcaster->cast->removeViewer(this);
-			std::cout << "[Cast] Viewer removed from cast" << std::endl;
+	// Remove this viewer from the cast (pass viewerPlayer for leave message)
+	if (viewingBroadcaster && viewingBroadcaster->cast) {
+		viewingBroadcaster->cast->removeViewer(this, viewerPlayer);
+		std::cout << "[Cast] Viewer removed from cast" << std::endl;
+	}
+	
+	// Remove viewer from Cast Channel and clean up
+	if (viewerPlayer && viewingBroadcaster && g_chat) {
+		ChatChannel* channel = g_chat->getChannel(*viewingBroadcaster, CHANNEL_CAST);
+		if (channel) {
+			channel->removeUser(*viewerPlayer);
+			std::cout << "[Cast] Viewer removed from Cast Channel" << std::endl;
 		}
+		viewerPlayer->decrementReferenceCounter();
+		viewerPlayer = nullptr;
+	}
 		
 		// Simply disconnect without affecting the game world
 		disconnect();
@@ -463,6 +522,9 @@ void ProtocolGame::writeToOutputBuffer(const NetworkMessage& msg)
 void ProtocolGame::broadcastToViewers(const NetworkMessage& msg)
 {
 	if (player && player->isCasting()) {
+		// Broadcast everything to viewers - they will receive it via Cast System
+		// Note: Viewers are in Cast Channel but we skip sending to them via channel->talk()
+		// so they only receive via broadcast (no duplication)
 		Cast* cast = player->getCast();
 		if (cast) {
 			cast->broadcastToViewers(msg);
@@ -488,6 +550,11 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		if (recvbyte == 0x14) {
 			// Allow logout
 			g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::logout, getThis(), true, false)));
+			return;
+		}
+		if (recvbyte == 0x96) {
+			// Allow chat messages (for Cast Channel only)
+			parseViewerSay(msg);
 			return;
 		}
 		// Block ALL other commands for viewers
@@ -962,6 +1029,55 @@ void ProtocolGame::parseSay(NetworkMessage& msg)
 	}
 
 	addGameTask(&Game::playerSay, player->getID(), channelId, type, receiver, text);
+}
+
+void ProtocolGame::parseViewerSay(NetworkMessage& msg)
+{
+	// Cast System - Handle viewer chat messages
+	if (!isViewer || !viewingBroadcaster || !viewerPlayer) {
+		return;
+	}
+
+	std::string receiver;
+	uint16_t channelId;
+
+	SpeakClasses type = static_cast<SpeakClasses>(msg.getByte());
+	switch (type) {
+		case TALKTYPE_CHANNEL_Y:
+		case TALKTYPE_CHANNEL_R1:
+		case TALKTYPE_CHANNEL_R2:
+			channelId = msg.get<uint16_t>();
+			break;
+		default:
+			// Viewers can only talk in channels
+			return;
+	}
+
+	const std::string text = msg.getString();
+	if (text.length() > 255 || text.find('\n') != std::string::npos) {
+		return;
+	}
+
+	// Only allow Cast Channel
+	if (channelId != CHANNEL_CAST) {
+		return;
+	}
+
+	std::cout << "[Cast] Viewer " << viewerPlayer->getName() << " says: " << text << std::endl;
+
+	// Get the cast channel
+	if (!g_chat) {
+		return;
+	}
+
+	ChatChannel* channel = g_chat->getChannel(*viewingBroadcaster, CHANNEL_CAST);
+	if (!channel) {
+		return;
+	}
+
+	// Broadcast message to all users in the channel (broadcaster only, viewers receive via Cast broadcast)
+	// Use viewerPlayer as the sender so the name appears correctly
+	channel->talk(*viewerPlayer, TALKTYPE_CHANNEL_Y, text);
 }
 
 void ProtocolGame::parseFightModes(NetworkMessage& msg)
