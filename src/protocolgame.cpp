@@ -83,9 +83,6 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		player->incrementReferenceCounter();
 		player->setID();
 		
-		// Set basic viewer properties
-		player->setGroup(g_game.getPlayerGroup(1)); // Normal player group
-		
 		// TODO: Connect as viewer and start receiving broadcaster's data
 		std::cout << "[Cast] Viewer " << name << " connected to " << broadcasterName << "'s cast" << std::endl;
 		
