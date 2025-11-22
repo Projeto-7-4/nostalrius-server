@@ -2560,6 +2560,7 @@ void ProtocolGame::sendItemDescription(uint16_t itemId, uint8_t count)
 	NetworkMessage msg;
 	msg.addByte(0xFE); // Item info opcode
 	msg.add<uint16_t>(itemId);
+	msg.addByte(count); // Send count back so client can cache correctly
 	msg.addString(description);
 	
 	writeToOutputBuffer(msg);
