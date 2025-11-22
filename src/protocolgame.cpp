@@ -104,18 +104,22 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
 		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// TODO: Send initial game state to viewer
-		// For now, the viewer connection will stay open and receive all
-		// packets from the broadcaster through broadcastToViewers()
+		// Set this protocol to accept packets
+		acceptPackets = true;
 		
-		std::cout << "[Cast] SUCCESS! Viewer is now connected!" << std::endl;
+		// Send the broadcaster's view to the viewer
+		// This will make the viewer see exactly what the broadcaster sees
+		std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
+		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, true);
+		
+		// Add this protocol to auto-send pool
+		OutputMessagePool::getInstance().addProtocolToAutosend(shared_from_this());
+		
+		std::cout << "[Cast] SUCCESS! Viewer is now watching the cast!" << std::endl;
 		std::cout << "[Cast] Viewer will receive live stream from " << broadcasterName << std::endl;
 		
-		// Keep connection alive - don't disconnect or call login
-		// The viewer will receive broadcaster's packets automatically
+		// Viewer is now connected and will receive all broadcaster's packets
 		// through the Cast::broadcastToViewers() mechanism
-		
-		// TODO: Implement full synchronization and initial world state
 		return;
 	}
 	
