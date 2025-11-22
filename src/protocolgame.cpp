@@ -108,21 +108,7 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	viewerPlayer->incrementReferenceCounter();
 	viewerPlayer->viewingBroadcaster = broadcaster;
 	
-	// Add this protocol as a viewer to the broadcaster's cast (with viewerPlayer)
-	std::string viewerIp = convertIPToString(getIP());
-	if (!cast->addViewer(this, name, viewerIp, "", viewerPlayer)) {
-		std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
-		viewerPlayer->decrementReferenceCounter();
-		viewerPlayer = nullptr;
-		disconnectClient("Failed to join the cast. Please try again.");
-		return;
-	}
-	
-	std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
-	std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
-	std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
-	
-	// Add viewer to Cast Channel
+	// Add viewer to Cast Channel FIRST (so they can send/receive messages)
 	if (g_chat) {
 		ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
 		if (channel) {
@@ -134,6 +120,28 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		sendChannel(CHANNEL_CAST, "Cast Channel");
 		std::cout << "[Cast] Cast Channel sent to viewer client" << std::endl;
 	}
+	
+	// Add this protocol as a viewer to the broadcaster's cast (with viewerPlayer)
+	// This will broadcast the "joined" message via channel->talk()
+	std::string viewerIp = convertIPToString(getIP());
+	if (!cast->addViewer(this, name, viewerIp, "", viewerPlayer)) {
+		std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
+		// Remove from channel if addViewer failed
+		if (g_chat) {
+			ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
+			if (channel) {
+				channel->removeUser(*viewerPlayer);
+			}
+		}
+		viewerPlayer->decrementReferenceCounter();
+		viewerPlayer = nullptr;
+		disconnectClient("Failed to join the cast. Please try again.");
+		return;
+	}
+	
+	std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
+	std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
+	std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 	
 	// Set this protocol to accept packets
 	acceptPackets = true;
