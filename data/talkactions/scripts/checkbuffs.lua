@@ -9,30 +9,28 @@ function onSay(player, words, param)
 
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "=== SEUS BUFFS DE COMBATE ===")
 	
-	-- Tenta pegar os special skills (se o método existir)
-	local critChance = 0
-	local critAmount = 0
-	local lifeChance = 0
-	local lifeAmount = 0
-	local manaChance = 0
-	local manaAmount = 0
+	-- Pega os special skills do player
+	local critChance = player:getSpecialSkill(SPECIALSKILL_CRITICALHITCHANCE)
+	local critAmount = player:getSpecialSkill(SPECIALSKILL_CRITICALHITAMOUNT)
+	local lifeChance = player:getSpecialSkill(SPECIALSKILL_LIFELEECHCHANCE)
+	local lifeAmount = player:getSpecialSkill(SPECIALSKILL_LIFELEECHAMOUNT)
+	local manaChance = player:getSpecialSkill(SPECIALSKILL_MANALEECHCHANCE)
+	local manaAmount = player:getSpecialSkill(SPECIALSKILL_MANALEECHAMOUNT)
 	
-	-- Como getSpecialSkill pode não estar disponível no Lua, vamos testar
-	if player.getSpecialSkill then
-		critChance = player:getSpecialSkill(SPECIALSKILL_CRITICALHITCHANCE) or 0
-		critAmount = player:getSpecialSkill(SPECIALSKILL_CRITICALHITAMOUNT) or 0
-		lifeChance = player:getSpecialSkill(SPECIALSKILL_LIFELEECHCHANCE) or 0
-		lifeAmount = player:getSpecialSkill(SPECIALSKILL_LIFELEECHAMOUNT) or 0
-		manaChance = player:getSpecialSkill(SPECIALSKILL_MANALEECHCHANCE) or 0
-		manaAmount = player:getSpecialSkill(SPECIALSKILL_MANALEECHAMOUNT) or 0
-	end
+	-- Garantir que os valores não sejam nil
+	if critChance == nil then critChance = 0 end
+	if critAmount == nil then critAmount = 0 end
+	if lifeChance == nil then lifeChance = 0 end
+	if lifeAmount == nil then lifeAmount = 0 end
+	if manaChance == nil then manaChance = 0 end
+	if manaAmount == nil then manaAmount = 0 end
 	
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Critical Hit Chance: " .. critChance .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Critical Hit Amount: " .. critAmount .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Life Leech Chance: " .. lifeChance .. "%")
-	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Life Leech Amount: " .. lifeAmount)
+	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Life Leech Amount: " .. lifeAmount .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Chance: " .. manaChance .. "%")
-	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Amount: " .. manaAmount)
+	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Mana Leech Amount: " .. manaAmount .. "%")
 	
 	-- Mostra conditions ativas
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "")
