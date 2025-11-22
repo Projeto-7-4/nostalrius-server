@@ -29,8 +29,16 @@ function onSay(player, words, param)
 	end
 
 	if not item then
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Você precisa segurar um item na mão!")
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Coloque a arma na mão esquerda ou direita.")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "❌ Você precisa segurar um item na mão!")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Coloque a Magic Sword (ou outra arma) na mão esquerda ou direita.")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Magic Sword ID: 3288 - Use /i 3288 para criar uma.")
+		return false
+	end
+	
+	-- Verifica se é uma arma (tem attack)
+	if not item:isWeapon() then
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "⚠️ Este item não é uma arma!")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Use uma arma (sword, axe, club, etc.)")
 		return false
 	end
 

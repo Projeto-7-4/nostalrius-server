@@ -3508,13 +3508,8 @@ bool Game::combatChangeHealth(Creature* attacker, Creature* target, CombatDamage
 		if (damage.value) {
 			combatGetTypeInfo(damage.type, target, color, hitEffect);
 			// Combat System - Não enviar efeito padrão se for crítico (efeito 173 já é enviado em combat.cpp)
-			if (hitEffect != CONST_ME_NONE) {
-				if (damage.critical) {
-					std::cout << "[DEBUG CRITICAL] BLOQUEANDO efeito padrão " << (int)hitEffect << " em game.cpp porque é crítico" << std::endl;
-				} else {
-					std::cout << "[DEBUG CRITICAL] Enviando efeito padrão " << (int)hitEffect << " em game.cpp (não é crítico)" << std::endl;
-					addMagicEffect(list, targetPos, hitEffect);
-				}
+			if (hitEffect != CONST_ME_NONE && !damage.critical) {
+				addMagicEffect(list, targetPos, hitEffect);
 			}
 		}
 
