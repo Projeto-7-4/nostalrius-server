@@ -133,18 +133,20 @@ bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, cons
     }
     
     // Check if viewer already exists
+    std::cout << "[Cast] Checking for existing viewers... Current count: " << viewers.size() << std::endl;
     for (const auto& viewer : viewers) {
+        std::cout << "[Cast]   Existing viewer: name='" << viewer.name << "', protocol=" << viewer.protocol << std::endl;
         if (viewer.name == viewerName) {
-            std::cout << "[Cast] addViewer failed: viewer name '" << viewerName << "' already exists" << std::endl;
+            std::cout << "[Cast] addViewer FAILED: viewer name '" << viewerName << "' already exists" << std::endl;
             return false;
         }
         if (viewer.protocol == protocol) {
-            std::cout << "[Cast] addViewer failed: protocol already in use" << std::endl;
+            std::cout << "[Cast] addViewer FAILED: protocol " << protocol << " already in use" << std::endl;
             return false;
         }
     }
     
-    std::cout << "[Cast] Adding viewer '" << viewerName << "' (current viewers: " << viewers.size() << ")" << std::endl;
+    std::cout << "[Cast] ✅ No conflicts found! Adding viewer '" << viewerName << "' (current viewers: " << viewers.size() << ")" << std::endl;
     
     CastViewer viewer;
     viewer.name = viewerName;

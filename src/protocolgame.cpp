@@ -108,6 +108,9 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	viewerPlayer->incrementReferenceCounter();
 	viewerPlayer->viewingBroadcaster = broadcaster;
 	
+	std::cout << "[Cast] Created viewerPlayer: " << viewerPlayer->getName() << ", ID: " << viewerPlayer->getID() << std::endl;
+	std::cout << "[Cast] Current viewer count BEFORE adding: " << cast->getViewerCount() << std::endl;
+	
 	// Add viewer to Cast Channel FIRST (so they can send/receive messages)
 	if (g_chat) {
 		ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
@@ -124,8 +127,17 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	// Add this protocol as a viewer to the broadcaster's cast (with viewerPlayer)
 	// This will broadcast the "joined" message via channel->talk()
 	std::string viewerIp = convertIPToString(getIP());
-	if (!cast->addViewer(this, name, viewerIp, "", viewerPlayer)) {
-		std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
+	std::cout << "[Cast] Calling cast->addViewer() with:" << std::endl;
+	std::cout << "[Cast]   protocol: " << this << std::endl;
+	std::cout << "[Cast]   name: " << name << std::endl;
+	std::cout << "[Cast]   viewerIp: " << viewerIp << std::endl;
+	std::cout << "[Cast]   viewerPlayer: " << viewerPlayer->getName() << std::endl;
+	
+	bool addResult = cast->addViewer(this, name, viewerIp, "", viewerPlayer);
+	std::cout << "[Cast] addViewer() returned: " << (addResult ? "SUCCESS ✅" : "FAILED ❌") << std::endl;
+	
+	if (!addResult) {
+		std::cout << "[Cast] ERROR: Failed to add viewer to cast - DISCONNECTING CLIENT" << std::endl;
 		// Remove from channel if addViewer failed
 		if (g_chat) {
 			ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
