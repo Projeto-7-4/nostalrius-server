@@ -2533,8 +2533,6 @@ void ProtocolGame::parseRequestItemInfo(NetworkMessage& msg)
 	uint16_t itemId = msg.get<uint16_t>();
 	uint8_t count = msg.getByte();
 	
-	std::cout << "[ItemTooltip] Client requesting info for item " << itemId << " (count: " << (int)count << ")" << std::endl;
-	
 	sendItemDescription(itemId, count);
 }
 
@@ -2543,14 +2541,12 @@ void ProtocolGame::sendItemDescription(uint16_t itemId, uint8_t count)
 	const ItemType& it = Item::items[itemId];
 	
 	if (it.id == 0) {
-		std::cout << "[ItemTooltip] Invalid item ID: " << itemId << std::endl;
 		return;
 	}
 	
 	// Create a temporary item to get full description
 	Item* tempItem = Item::CreateItem(itemId, count);
 	if (!tempItem) {
-		std::cout << "[ItemTooltip] Failed to create temp item" << std::endl;
 		return;
 	}
 	
@@ -2567,6 +2563,4 @@ void ProtocolGame::sendItemDescription(uint16_t itemId, uint8_t count)
 	msg.addString(description);
 	
 	writeToOutputBuffer(msg);
-	
-	std::cout << "[ItemTooltip] Sent description for item " << itemId << ": " << description.substr(0, 50) << "..." << std::endl;
 }
