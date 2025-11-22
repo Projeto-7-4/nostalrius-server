@@ -21,25 +21,63 @@ function onSay(player, words, param)
 		return false
 	end
 
-	-- Tenta pegar item da mão esquerda primeiro
-	local item = player:getSlotItem(CONST_SLOT_LEFT)
+	local item = nil
+	
+	-- Primeiro tenta pegar item na frente do player
+	local playerPos = player:getPosition()
+	local direction = player:getDirection()
+	local targetPos = Position(playerPos.x, playerPos.y, playerPos.z)
+	
+	if direction == DIRECTION_NORTH then
+		targetPos.y = targetPos.y - 1
+	elseif direction == DIRECTION_SOUTH then
+		targetPos.y = targetPos.y + 1
+	elseif direction == DIRECTION_WEST then
+		targetPos.x = targetPos.x - 1
+	elseif direction == DIRECTION_EAST then
+		targetPos.x = targetPos.x + 1
+	end
+	
+	local tile = Tile(targetPos)
+	if tile then
+		local topItem = tile:getTopDownItem()
+		if topItem and topItem:isItem() then
+			item = topItem
+			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "📦 Item encontrado na sua frente: " .. item:getName())
+		end
+	end
+	
+	-- Se não encontrou na frente, tenta pegar item da mão esquerda
 	if not item then
-		-- Se não tem na esquerda, tenta direita
+		item = player:getSlotItem(CONST_SLOT_LEFT)
+		if item then
+			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "📦 Item encontrado na mão esquerda: " .. item:getName())
+		end
+	end
+	
+	-- Se não encontrou na esquerda, tenta direita
+	if not item then
 		item = player:getSlotItem(CONST_SLOT_RIGHT)
+		if item then
+			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "📦 Item encontrado na mão direita: " .. item:getName())
+		end
 	end
 
 	if not item then
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "❌ Você precisa segurar um item na mão!")
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Coloque a Magic Sword (ou outra arma) na mão esquerda ou direita.")
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Magic Sword ID: 3288 - Use /i 3288 para criar uma.")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "❌ Nenhum item encontrado!")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Coloque um item na sua frente ou segure na mão.")
 		return false
 	end
 	
-	-- Verifica se é uma arma (tem attack)
-	if not item:isWeapon() then
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "⚠️ Este item não é uma arma!")
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Use uma arma (sword, axe, club, etc.)")
-		return false
+	-- Verifica se o item tem atributo de attack (pode ser arma ou item com attack customizado)
+	local currentAttack = item:getAttack()
+	if currentAttack == nil then
+		-- Tenta verificar se é uma arma
+		if not item:isWeapon() then
+			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "⚠️ Este item não possui atributo de attack!")
+			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Use uma arma ou item que tenha attack.")
+			return false
+		end
 	end
 
 	-- Debug: mostra info do item
