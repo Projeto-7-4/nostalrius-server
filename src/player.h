@@ -43,6 +43,7 @@ class Party;
 class SchedulerTask;
 class Bed;
 class Guild;
+class Cast;
 
 enum skillsid_t {
 	SKILLVALUE_LEVEL = 0,
@@ -957,6 +958,9 @@ class Player final : public Creature, public Cylinder
 		std::vector<OutfitEntry> outfits;
 		GuildWarList guildWarList;
 
+		Cast* cast = nullptr;
+		Cast* watchingCast = nullptr;
+
 		std::forward_list<Party*> invitePartyList;
 		std::forward_list<std::string> learnedInstantSpellList;
 		std::forward_list<Condition*> storedConditionList; // TODO: This variable is only temporarily used when logging in, get rid of it somehow
@@ -1084,6 +1088,23 @@ class Player final : public Creature, public Cylinder
 		}
 		uint16_t getLookCorpse() const final;
 		void getPathSearchParams(const Creature* creature, FindPathParams& fpp) const final;
+
+		// Cast System
+		bool startCast(const std::string& password = "");
+		void stopCast();
+		bool isCasting() const;
+		void setCastPassword(const std::string& password);
+		bool castHasPassword() const;
+		void banCastViewer(const std::string& viewerName);
+		void unbanCastViewer(const std::string& viewerName);
+		std::vector<std::string> getCastViewers() const;
+		Cast* getCast() const { return cast; }
+		
+		// Watching casts
+		bool watchCast(Player* broadcaster, const std::string& password = "");
+		void stopWatchingCast();
+		bool isWatchingCast() const { return watchingCast != nullptr; }
+		Cast* getWatchingCast() const { return watchingCast; }
 
 		friend class Game;
 		friend class Npc;

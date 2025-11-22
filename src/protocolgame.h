@@ -73,8 +73,7 @@ class ProtocolGame final : public Protocol
 		void connect(uint32_t playerId, OperatingSystem_t operatingSystem);
 		void sendUpdateRequest();
 		void disconnectClient(const std::string& message) const;
-		void writeToOutputBuffer(const NetworkMessage& msg);
-
+		
 		void release() final;
 
 		void checkCreatureAsKnown(uint32_t id, bool& known, uint32_t& removedKnown);
@@ -200,6 +199,10 @@ class ProtocolGame final : public Protocol
 		void sendRemoveTileThing(const Position& pos, uint32_t stackpos);
 		void sendUpdateTile(const Tile* tile, const Position& pos);
 
+		// Cast System
+		void writeToOutputBuffer(const NetworkMessage& msg);
+		void broadcastToViewers(const NetworkMessage& msg);
+
 		void sendAddCreature(const Creature* creature, const Position& pos, int32_t stackpos, bool isLogin);
 		void sendMoveCreature(const Creature* creature, const Position& newPos, int32_t newStackPos,
 		                      const Position& oldPos, int32_t oldStackPos, bool teleport);
@@ -239,11 +242,29 @@ class ProtocolGame final : public Protocol
 		//tiles
 		static void RemoveTileThing(NetworkMessage& msg, const Position& pos, uint32_t stackpos);
 
-		void MoveUpCreature(NetworkMessage& msg, const Creature* creature, const Position& newPos, const Position& oldPos);
-		void MoveDownCreature(NetworkMessage& msg, const Creature* creature, const Position& newPos, const Position& oldPos);
+	void MoveUpCreature(NetworkMessage& msg, const Creature* creature, const Position& newPos, const Position& oldPos);
+	void MoveDownCreature(NetworkMessage& msg, const Creature* creature, const Position& newPos, const Position& oldPos);
 
-		//otclient
-		void parseExtendedOpcode(NetworkMessage& msg);
+	//market
+	// TEMPORARY COMMENTED FOR CAST SYSTEM COMPILATION
+	/*
+	void parseMarketRequestOffers(NetworkMessage& msg);
+	void parseMarketBuy(NetworkMessage& msg);
+	void parseMarketSell(NetworkMessage& msg);
+	void parseMarketCancel(NetworkMessage& msg);
+	void parseMarketMyOffers(NetworkMessage& msg);
+	
+	void sendMarketOffers(const std::vector<struct MarketOffer>& offers);
+	void sendMarketBuyResponse(bool success, const std::string& message);
+	void sendMarketSellResponse(bool success, const std::string& message);
+	*/
+	
+	// Cast System
+	void parseRequestCastList(NetworkMessage& msg);
+	void sendCastList();
+
+	//otclient
+	void parseExtendedOpcode(NetworkMessage& msg);
 
 		friend class Player;
 
@@ -266,6 +287,8 @@ class ProtocolGame final : public Protocol
 
 		bool debugAssertSent = false;
 		bool acceptPackets = false;
+		bool isViewer = false;
+		Player* viewingBroadcaster = nullptr;
 };
 
 #endif

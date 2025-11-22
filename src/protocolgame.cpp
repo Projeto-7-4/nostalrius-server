@@ -34,6 +34,7 @@
 #include "waitlist.h"
 #include "ban.h"
 #include "scheduler.h"
+#include "cast.h"
 
 extern ConfigManager g_config;
 extern Actions actions;
@@ -56,6 +57,98 @@ void ProtocolGame::release()
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
 	//dispatcher thread
+	std::cout << "[ProtocolGame] Login attempt - Name: " << name << ", AccountId: " << accountId << std::endl;
+	
+	// Check if this is a cast viewer
+	if (name.find("[Viewer] ") == 0) {
+		std::string broadcasterName = name.substr(9); // Remove "[Viewer] " prefix
+		std::cout << "[Cast] Viewer login attempt for broadcaster: " << broadcasterName << std::endl;
+		
+		// Find the broadcaster
+		Player* broadcaster = g_game.getPlayerByName(broadcasterName);
+		if (!broadcaster) {
+			std::cout << "[Cast] ERROR: Broadcaster " << broadcasterName << " is not online" << std::endl;
+			disconnectClient(broadcasterName + " is not online.");
+			return;
+		}
+		
+		std::cout << "[Cast] Found broadcaster: " << broadcaster->getName() << std::endl;
+		
+		// Check if broadcaster is casting
+		Cast* cast = broadcaster->getCast();
+		std::cout << "[Cast] Broadcaster cast pointer: " << (cast ? "valid" : "null") << std::endl;
+		
+		if (!cast) {
+			std::cout << "[Cast] ERROR: Broadcaster has no cast object" << std::endl;
+			disconnectClient(broadcasterName + " is not casting.");
+			return;
+		}
+		
+		if (!cast->isCasting()) {
+			std::cout << "[Cast] ERROR: Broadcaster cast is not active" << std::endl;
+			disconnectClient(broadcasterName + " is not casting.");
+			return;
+		}
+		
+		std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
+		
+		// Add this protocol as a viewer to the broadcaster's cast
+		std::string viewerIp = convertIPToString(getIP());
+		if (!cast->addViewer(this, name, viewerIp, "")) {
+			std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
+			disconnectClient("Failed to join the cast. Please try again.");
+			return;
+		}
+		
+		std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
+		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
+		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
+		
+		// Mark this protocol as a viewer
+		isViewer = true;
+		viewingBroadcaster = broadcaster;
+		
+		// Set this protocol to accept packets
+		acceptPackets = true;
+		
+		// Send the complete game state from broadcaster's perspective
+		std::cout << "[Cast] Sending initial game state from broadcaster..." << std::endl;
+		
+		// Temporarily set player to broadcaster just to send initial data
+		player = broadcaster;
+		
+		// Send self appearance (broadcaster)
+		sendAddCreature(broadcaster, broadcaster->getPosition(), 0, true);
+		
+		// Send map around broadcaster
+		sendMapDescription(broadcaster->getPosition());
+		
+		// Send broadcaster's stats
+		sendStats();
+		sendSkills();
+		
+		// Send broadcaster's inventory
+		for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
+			sendInventoryItem(static_cast<slots_t>(slot), broadcaster->getInventoryItem(static_cast<slots_t>(slot)));
+		}
+		
+		// CRITICAL: Keep player pointing to broadcaster for rendering
+		// but isViewer flag will block all commands
+		
+		// Add this protocol to auto-send pool
+		OutputMessagePool::getInstance().addProtocolToAutosend(shared_from_this());
+		
+		std::cout << "[Cast] SUCCESS! Viewer is now watching the cast!" << std::endl;
+		std::cout << "[Cast] Viewer is READ-ONLY - all commands will be blocked" << std::endl;
+		std::cout << "[Cast] All broadcaster actions will be streamed automatically" << std::endl;
+		
+		// Viewer is now connected and will receive all broadcaster's packets
+		// through the Cast::broadcastToViewers() mechanism in writeToOutputBuffer()
+		return;
+	}
+	
+	std::cout << "[ProtocolGame] Normal player login (not a viewer)" << std::endl;
+	
 	Player* foundPlayer = g_game.getPlayerByName(name);
 	if (!foundPlayer || g_config.getBoolean(ConfigManager::ALLOW_CLONES)) {
 		player = new Player(getThis());
@@ -197,6 +290,22 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 void ProtocolGame::logout(bool displayEffect, bool forced)
 {
 	//dispatcher thread
+	
+	// Special handling for viewers
+	if (isViewer) {
+		std::cout << "[Cast] Viewer disconnecting..." << std::endl;
+		
+		// Remove this viewer from the cast
+		if (viewingBroadcaster && viewingBroadcaster->cast) {
+			viewingBroadcaster->cast->removeViewer(this);
+			std::cout << "[Cast] Viewer removed from cast" << std::endl;
+		}
+		
+		// Simply disconnect without affecting the game world
+		disconnect();
+		return;
+	}
+	
 	if (!player) {
 		return;
 	}
@@ -268,6 +377,8 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 	uint32_t accountNumber = msg.get<uint32_t>();
 	std::string characterName = msg.getString();
 	std::string password = msg.getString();
+	
+	std::cout << "[ProtocolGame] onRecvFirstMessage - Account: " << accountNumber << ", Character: " << characterName << std::endl;
 
 	/*if (version < CLIENT_VERSION_MIN || version > CLIENT_VERSION_MAX) {
 		//sendUpdateRequest();
@@ -297,6 +408,14 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
+	// Check if this is a cast viewer (skip authentication for viewers)
+	if (characterName.find("[Viewer] ") == 0) {
+		std::cout << "[Cast] Detected viewer in onRecvFirstMessage, skipping authentication" << std::endl;
+		// Use special accountId for viewers
+		g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::login, getThis(), characterName, accountNumber, operatingSystem)));
+		return;
+	}
+	
 	uint32_t accountId = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
 	if (accountId == 0) {
 		disconnectClient("Account number or password is not correct.");
@@ -336,6 +455,19 @@ void ProtocolGame::writeToOutputBuffer(const NetworkMessage& msg)
 {
 	auto out = getOutputBuffer(msg.getLength());
 	out->append(msg);
+	
+	// Cast System: Broadcast to viewers
+	broadcastToViewers(msg);
+}
+
+void ProtocolGame::broadcastToViewers(const NetworkMessage& msg)
+{
+	if (player && player->isCasting()) {
+		Cast* cast = player->getCast();
+		if (cast) {
+			cast->broadcastToViewers(msg);
+		}
+	}
 }
 
 void ProtocolGame::parsePacket(NetworkMessage& msg)
@@ -345,6 +477,22 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	}
 
 	uint8_t recvbyte = msg.getByte();
+
+	// CAST VIEWER PROTECTION: Block ALL commands except logout/disconnect
+	if (isViewer) {
+		if (recvbyte == 0x0F) {
+			// Allow disconnect
+			disconnect();
+			return;
+		}
+		if (recvbyte == 0x14) {
+			// Allow logout
+			g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::logout, getThis(), true, false)));
+			return;
+		}
+		// Block ALL other commands for viewers
+		return;
+	}
 
 	if (!player) {
 		if (recvbyte == 0x0F) {
@@ -427,12 +575,25 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		case 0xD3: parseSetOutfit(msg); break;
 		case 0xDC: parseAddVip(msg); break;
 		case 0xDD: parseRemoveVip(msg); break;
-		case 0xE6: parseBugReport(msg); break;
-		case 0xE7: /* violation window */ break;
-		case 0xE8: parseDebugAssert(msg); break;
-		default:
-		    std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex << static_cast<uint16_t>(recvbyte) << std::dec << "!" << std::endl;
-			break;
+	case 0xE6: parseBugReport(msg); break;
+	case 0xE7: /* violation window */ break;
+	case 0xE8: parseDebugAssert(msg); break;
+	
+	// Market system - TEMPORARY COMMENTED FOR CAST SYSTEM COMPILATION
+	/*
+	case 0xF0: parseMarketRequestOffers(msg); break;
+	case 0xF1: parseMarketBuy(msg); break;
+	case 0xF2: parseMarketSell(msg); break;
+	case 0xF3: parseMarketCancel(msg); break;
+	case 0xF4: parseMarketMyOffers(msg); break;
+	*/
+	
+	// Cast System
+	case 0xF5: parseRequestCastList(msg); break;
+	
+	default:
+	    std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex << static_cast<uint16_t>(recvbyte) << std::dec << "!" << std::endl;
+		break;
 	}
 
 	if (msg.isOverrun()) {
@@ -2040,4 +2201,209 @@ void ProtocolGame::parseExtendedOpcode(NetworkMessage& msg)
 
 	// process additional opcodes via lua script event
 	addGameTask(&Game::parsePlayerExtendedOpcode, player->getID(), opcode, buffer);
+}
+
+// ============================================================================
+// MARKET SYSTEM
+// ============================================================================
+
+#include "market.h"
+
+// TEMPORARY COMMENTED FOR CAST SYSTEM COMPILATION
+/*
+void ProtocolGame::parseMarketRequestOffers(NetworkMessage& msg)
+{
+	if (!player) {
+		return;
+	}
+
+	uint16_t category = msg.get<uint16_t>();
+	
+	std::cout << "[Market] Player " << player->getName() << " requesting offers (category: " << category << ")" << std::endl;
+	
+	// Buscar ofertas ativas
+	std::vector<MarketOffer> offers = Market::getInstance().getActiveOffers(static_cast<uint8_t>(category));
+	
+	// Enviar ofertas para o cliente
+	sendMarketOffers(offers);
+}
+
+void ProtocolGame::parseMarketBuy(NetworkMessage& msg)
+{
+	if (!player) {
+		return;
+	}
+
+	uint32_t offerId = msg.get<uint32_t>();
+	uint16_t amount = msg.get<uint16_t>();
+	
+	std::cout << "[Market] Player " << player->getName() << " buying offer " << offerId << " (amount: " << amount << ")" << std::endl;
+	
+	// Processar compra
+	bool success = Market::getInstance().buyOffer(player, offerId, amount);
+	
+	// Enviar resposta
+	if (success) {
+		sendMarketBuyResponse(true, "Purchase successful!");
+	} else {
+		sendMarketBuyResponse(false, "Purchase failed.");
+	}
+	
+	// Atualizar lista de ofertas
+	std::vector<MarketOffer> offers = Market::getInstance().getActiveOffers(0);
+	sendMarketOffers(offers);
+}
+
+void ProtocolGame::parseMarketSell(NetworkMessage& msg)
+{
+	if (!player) {
+		return;
+	}
+
+	uint16_t itemId = msg.get<uint16_t>();
+	uint16_t amount = msg.get<uint16_t>();
+	uint32_t price = msg.get<uint32_t>();
+	
+	std::cout << "[Market] Player " << player->getName() << " selling item " << itemId << " (amount: " << amount << ", price: " << price << ")" << std::endl;
+	
+	// Determinar categoria do item
+	uint8_t category = Market::getInstance().getItemCategory(itemId);
+	
+	// Criar oferta
+	bool success = Market::getInstance().createOffer(player, itemId, amount, price, category);
+	
+	// Enviar resposta
+	if (success) {
+		sendMarketSellResponse(true, "Your offer has been placed on the market!");
+	} else {
+		sendMarketSellResponse(false, "Failed to create offer.");
+	}
+	
+	// Atualizar lista de ofertas
+	std::vector<MarketOffer> offers = Market::getInstance().getActiveOffers(0);
+	sendMarketOffers(offers);
+}
+
+void ProtocolGame::parseMarketCancel(NetworkMessage& msg)
+{
+	if (!player) {
+		return;
+	}
+
+	uint32_t offerId = msg.get<uint32_t>();
+	
+	std::cout << "[Market] Player " << player->getName() << " cancelling offer " << offerId << std::endl;
+	
+	// Cancelar oferta
+	bool success = Market::getInstance().cancelOffer(player, offerId);
+	
+	// Enviar mensagem
+	if (success) {
+		player->sendTextMessage(MESSAGE_STATUS_SMALL, "Your offer has been cancelled.");
+	} else {
+		player->sendTextMessage(MESSAGE_STATUS_SMALL, "Failed to cancel offer.");
+	}
+	
+	// Atualizar lista de ofertas
+	std::vector<MarketOffer> offers = Market::getInstance().getActiveOffers(0);
+	sendMarketOffers(offers);
+}
+
+void ProtocolGame::parseMarketMyOffers(NetworkMessage& msg)
+{
+	if (!player) {
+		return;
+	}
+
+	std::cout << "[Market] Player " << player->getName() << " requesting own offers" << std::endl;
+	
+	// Buscar ofertas do player
+	std::vector<MarketOffer> offers = Market::getInstance().getPlayerOffers(player->getGUID());
+	
+	// Enviar ofertas
+	sendMarketOffers(offers);
+}
+
+void ProtocolGame::sendMarketOffers(const std::vector<MarketOffer>& offers)
+{
+	NetworkMessage msg;
+	msg.addByte(0xF0); // Opcode para enviar ofertas
+	msg.add<uint16_t>(offers.size());
+	
+	for (const MarketOffer& offer : offers) {
+		msg.add<uint32_t>(offer.id);
+		msg.add<uint32_t>(offer.playerId);
+		msg.addString(offer.playerName);
+		msg.add<uint16_t>(offer.itemId);
+		msg.addString(offer.itemName);
+		msg.add<uint16_t>(offer.amount);
+		msg.add<uint32_t>(offer.price);
+		msg.addByte(offer.category);
+		msg.add<uint32_t>(offer.timestamp);
+	}
+	
+	writeToOutputBuffer(msg);
+	
+	std::cout << "[Market] Sent " << offers.size() << " offers to player" << std::endl;
+}
+
+void ProtocolGame::sendMarketBuyResponse(bool success, const std::string& message)
+{
+	NetworkMessage msg;
+	msg.addByte(0xF1); // Opcode para resposta de compra
+	msg.addByte(success ? 1 : 0);
+	msg.addString(message);
+	
+	writeToOutputBuffer(msg);
+	
+	std::cout << "[Market] Sent buy response: " << (success ? "success" : "failed") << std::endl;
+}
+
+void ProtocolGame::sendMarketSellResponse(bool success, const std::string& message)
+{
+	NetworkMessage msg;
+	msg.addByte(0xF2); // Opcode para resposta de venda
+	msg.addByte(success ? 1 : 0);
+	msg.addString(message);
+	
+	writeToOutputBuffer(msg);
+	
+	std::cout << "[Market] Sent sell response: " << (success ? "success" : "failed") << std::endl;
+}
+*/
+
+// Cast System Implementation
+#include "cast.h"
+
+void ProtocolGame::parseRequestCastList(NetworkMessage& msg)
+{
+	std::cout << "[Cast] Client requesting cast list" << std::endl;
+	sendCastList();
+}
+
+void ProtocolGame::sendCastList()
+{
+	CastManager& castManager = CastManager::getInstance();
+	std::vector<Cast*> casts = castManager.getAllCasts();
+	
+	NetworkMessage msg;
+	msg.addByte(0xF6); // Opcode for cast list
+	msg.add<uint16_t>(casts.size());
+	
+	std::cout << "[Cast] Sending " << casts.size() << " active casts to client" << std::endl;
+	
+	for (Cast* cast : casts) {
+		if (!cast || !cast->getOwner()) {
+			continue;
+		}
+		
+		Player* owner = cast->getOwner();
+		msg.addString(owner->getName()); // Cast owner name
+		msg.add<uint16_t>(cast->getViewerCount()); // Number of viewers
+		msg.addString(cast->getDescription()); // Description
+		msg.addByte(cast->hasPassword() ? 1 : 0); // Has password?
+	}
+	
+	writeToOutputBuffer(msg);
+	std::cout << "[Cast] Cast list sent successfully" << std::endl;
 }

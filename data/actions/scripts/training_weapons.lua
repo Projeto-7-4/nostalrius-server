@@ -1,133 +1,81 @@
--- Sistema de Training Dummies para Nostalrius 7.72
--- Funciona com QUALQUER arma que tenha charges!
+-- Sistema de Training Dummies SIMPLIFICADO para Nostalrius 7.72
+-- Funciona com QUALQUER item que tenha charges
 
 local config = {
-	-- Dummies (NPCs que podem ser atacados)
-	dummyIds = {
-		"training monk",
-		"training dummy"
-	},
-	
-	-- Mapeamento de weapon types para skills
-	skillByWeaponType = {
-		[WEAPON_SWORD] = SKILL_SWORD,
-		[WEAPON_AXE] = SKILL_AXE,
-		[WEAPON_CLUB] = SKILL_CLUB,
-		[WEAPON_DIST] = SKILL_DISTANCE,
-		[WEAPON_SHIELD] = SKILL_SHIELD
-	},
-	
-	-- Configurações de treino
-	gainPerHit = 100,         -- Skill tries por hit
-	hitDelay = 2000,          -- Delay entre hits (ms)
-	animationEffect = true    -- Mostrar efeitos visuais
+	dummyNames = {"training monk", "training dummy"},
+	gainPerHit = 100,
+	hitDelay = 2000,
+	effect = CONST_ME_HITAREA
 }
 
 local lastHit = {}
 
 local function isDummy(creature)
-	if not creature then
-		return false
-	end
-	
+	if not creature then return false end
 	local name = creature:getName():lower()
-	for _, dummyName in ipairs(config.dummyIds) do
-		if name == dummyName then
-			return true
-		end
+	for _, dummyName in ipairs(config.dummyNames) do
+		if name == dummyName then return true end
 	end
 	return false
 end
 
-local function getSkillName(skillId)
-	local names = {
-		[SKILL_SWORD] = "sword fighting",
-		[SKILL_AXE] = "axe fighting",
-		[SKILL_CLUB] = "club fighting",
-		[SKILL_DISTANCE] = "distance fighting",
-		[SKILL_SHIELD] = "shielding"
-	}
-	return names[skillId] or "skill"
-end
-
-local function getWeaponSkill(item)
-	local weaponType = item:getType():getWeaponType()
-	return config.skillByWeaponType[weaponType]
-end
-
 function onUse(cid, item, fromPosition, itemEx, toPosition)
 	local player = Player(cid)
-	if not player then
-		return false
-	end
+	if not player then return false end
 	
 	local target = Creature(itemEx.uid)
-	if not target then
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, "You can only use this on creatures.")
-		return false
-	end
-	
-	-- Verifica se é um dummy
-	if not isDummy(target) then
+	if not target or not isDummy(target) then
 		player:sendTextMessage(MESSAGE_STATUS_SMALL, "You can only train on training dummies.")
 		return false
 	end
 	
-	-- Verifica se item tem charges
-	local charges = item:getAttribute(ITEM_ATTRIBUTE_CHARGES)
-	if not charges or charges <= 0 then
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, "This item has no charges left.")
+	-- Verifica charges
+	local charges = item:getAttribute(ITEM_ATTRIBUTE_CHARGES) or 0
+	if charges <= 0 then
+		player:sendTextMessage(MESSAGE_STATUS_SMALL, "This item has no charges.")
 		return false
 	end
 	
-	-- Identifica skill baseado no tipo de arma
-	local skill = getWeaponSkill(item)
-	if not skill then
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, "You cannot train with this item.")
-		return false
-	end
-	
-	-- Verifica delay entre hits
-	local playerId = player:getId()
+	-- Verifica delay
+	local pid = player:getId()
 	local now = os.time()
-	if lastHit[playerId] and (now - lastHit[playerId]) < (config.hitDelay / 1000) then
+	if lastHit[pid] and (now - lastHit[pid]) < 2 then
 		return false
 	end
-	lastHit[playerId] = now
+	lastHit[pid] = now
 	
-	-- Salva skill atual
+	-- Treina skill baseado no item
+	local skill = SKILL_SWORD -- padrão
+	local itemType = item:getType()
+	if itemType then
+		local itemName = itemType:getName():lower()
+		if itemName:find("sword") then skill = SKILL_SWORD
+		elseif itemName:find("axe") then skill = SKILL_AXE
+		elseif itemName:find("club") or itemName:find("mace") then skill = SKILL_CLUB
+		elseif itemName:find("bow") or itemName:find("arrow") then skill = SKILL_DISTANCE
+		elseif itemName:find("shield") then skill = SKILL_SHIELD
+		end
+	end
+	
 	local currentSkill = player:getSkillLevel(skill)
-	
-	-- Adiciona skill tries
 	player:addSkillTries(skill, config.gainPerHit)
 	
 	-- Remove charge
 	item:setAttribute(ITEM_ATTRIBUTE_CHARGES, charges - 1)
 	
-	-- Efeito visual
-	if config.animationEffect then
-		toPosition:sendMagicEffect(CONST_ME_HITAREA)
-		fromPosition:sendMagicEffect(CONST_ME_HITAREA)
-	end
+	-- Efeito
+	toPosition:sendMagicEffect(config.effect)
 	
-	-- Verifica se upou skill
+	-- Mensagem
 	local newSkill = player:getSkillLevel(skill)
 	if newSkill > currentSkill then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, 
-			"You advanced to " .. newSkill .. " in " .. getSkillName(skill) .. "!")
-	end
-	
-	-- Mostra charges restantes
-	local remainingCharges = charges - 1
-	if remainingCharges > 0 then
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, 
-			"Training " .. getSkillName(skill) .. "... [" .. remainingCharges .. " charges left]")
+		local skillNames = {[SKILL_SWORD]="sword", [SKILL_AXE]="axe", [SKILL_CLUB]="club", [SKILL_DISTANCE]="distance", [SKILL_SHIELD]="shielding"}
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You advanced to " .. newSkill .. " in " .. skillNames[skill] .. " fighting!")
 	else
-		player:sendTextMessage(MESSAGE_STATUS_SMALL, "Your training weapon has no more charges.")
-		item:remove(1)
+		player:sendTextMessage(MESSAGE_STATUS_SMALL, "Training... [" .. (charges-1) .. " charges left]")
 	end
 	
 	return true
 end
 
-print(">> Training weapons system loaded (universal)!")
+print(">> Training weapons system loaded!")

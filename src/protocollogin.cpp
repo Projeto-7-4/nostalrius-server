@@ -55,6 +55,53 @@ void ProtocolLogin::disconnectClient(const std::string& message)
 
 void ProtocolLogin::getCharacterList(uint32_t accountNumber, const std::string& password)
 {
+	std::cout << "[Login] Account: " << accountNumber << ", Password: " << password << std::endl;
+	
+	// Check if this is a cast viewer connection (special account number)
+	if (accountNumber == 999999999) {
+		std::cout << "[Cast] Cast viewer detected!" << std::endl;
+		// Cast viewer login
+		// Password format: "PlayerName" or "PlayerName:password"
+		std::string broadcasterName = password;
+		std::string castPassword = "";
+		
+		size_t colonPos = password.find(':');
+		if (colonPos != std::string::npos) {
+			broadcasterName = password.substr(0, colonPos);
+			castPassword = password.substr(colonPos + 1);
+		}
+		
+		std::cout << "[Cast] Viewer attempting to watch: " << broadcasterName << std::endl;
+		
+		// Create a viewer character entry
+		auto output = OutputMessagePool::getOutputMessage();
+		
+		// Add MOTD
+		const std::string& motd = g_config.getString(ConfigManager::MOTD);
+		if (!motd.empty()) {
+			output->addByte(0x14);
+			std::ostringstream ss;
+			ss << g_game.getMotdNum() << "\n" << motd;
+			output->addString(ss.str());
+		}
+		
+		// Add char list with viewer character
+		output->addByte(0x64);
+		output->addByte(1); // 1 character
+		output->addString("[Viewer] " + broadcasterName); // Character name
+		output->addString(g_config.getString(ConfigManager::SERVER_NAME));
+		output->add<uint32_t>(inet_addr(g_config.getString(ConfigManager::IP).c_str()));
+		output->add<uint16_t>(g_config.getNumber(ConfigManager::GAME_PORT));
+		
+		// Add premium days (give premium to viewers)
+		output->add<uint16_t>(0xFFFF);
+		
+		send(output);
+		disconnect();
+		return;
+	}
+	
+	// Normal login
 	Account account;
 	if (!IOLoginData::loginserverAuthentication(accountNumber, password, account)) {
 		disconnectClient("Accountnumber or password is not correct.");

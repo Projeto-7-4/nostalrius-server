@@ -22,6 +22,7 @@
 #include <bitset>
 
 #include "bed.h"
+#include "cast.h"
 #include "chat.h"
 #include "combat.h"
 #include "configmanager.h"
@@ -59,6 +60,10 @@ Player::~Player()
 
 	for (const auto& it : depotLockerMap) {
 		it.second->decrementReferenceCounter();
+	}
+
+	if (cast) {
+		stopCast();
 	}
 
 	setWriteItem(nullptr);
@@ -3660,4 +3665,126 @@ void Player::setGuild(Guild* guild)
 	if (oldGuild) {
 		oldGuild->removeMember(this);
 	}
+}
+
+// Cast System Implementation
+bool Player::startCast(const std::string& password)
+{
+	if (cast) {
+		return false;
+	}
+	
+	cast = new Cast(this);
+	return cast->startCast(password);
+}
+
+void Player::stopCast()
+{
+	if (!cast) {
+		return;
+	}
+	
+	cast->stopCast();
+	delete cast;
+	cast = nullptr;
+}
+
+bool Player::isCasting() const
+{
+	return cast != nullptr && cast->isCasting();
+}
+
+void Player::setCastPassword(const std::string& password)
+{
+	if (cast) {
+		cast->setPassword(password);
+	}
+}
+
+bool Player::castHasPassword() const
+{
+	return cast && cast->hasPassword();
+}
+
+void Player::banCastViewer(const std::string& viewerName)
+{
+	if (cast) {
+		cast->banViewer(viewerName);
+	}
+}
+
+void Player::unbanCastViewer(const std::string& viewerName)
+{
+	if (cast) {
+		cast->unbanViewer(viewerName);
+	}
+}
+
+std::vector<std::string> Player::getCastViewers() const
+{
+	std::vector<std::string> viewerNames;
+	
+	if (cast) {
+		const auto& viewers = cast->getViewers();
+		for (const auto& viewer : viewers) {
+			viewerNames.push_back(viewer.name);
+		}
+	}
+	
+	return viewerNames;
+}
+
+// Watching casts
+bool Player::watchCast(Player* broadcaster, const std::string& password)
+{
+	if (!broadcaster) {
+		return false;
+	}
+	
+	// Check if already watching
+	if (watchingCast) {
+		return false;
+	}
+	
+	// Get broadcaster's cast
+	Cast* broadcastCast = broadcaster->getCast();
+	if (!broadcastCast || !broadcastCast->isCasting()) {
+		return false;
+	}
+	
+	// Check password
+	if (broadcastCast->hasPassword() && !broadcastCast->checkPassword(password)) {
+		return false;
+	}
+	
+	// Check if banned
+	if (broadcastCast->isViewerBanned(getName())) {
+		return false;
+	}
+	
+	// Add as viewer
+	std::string ipString = convertIPToString(getIP());
+	if (!broadcastCast->addViewer(client.get(), getName(), ipString, password)) {
+		return false;
+	}
+	
+	watchingCast = broadcastCast;
+	
+	sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "You are now watching " + broadcaster->getName() + "'s cast.");
+	
+	return true;
+}
+
+void Player::stopWatchingCast()
+{
+	if (!watchingCast) {
+		return;
+	}
+	
+	// Remove from viewers
+	watchingCast->removeViewer(client.get());
+	
+	watchingCast = nullptr;
+	
+	sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "You stopped watching the cast.");
 }

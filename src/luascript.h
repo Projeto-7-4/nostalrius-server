@@ -906,6 +906,16 @@ class LuaScriptInterface
 
 		static int luaPlayerGetTotalDamage(lua_State* L);
 
+		// Cast System
+		static int luaPlayerStartCast(lua_State* L);
+		static int luaPlayerStopCast(lua_State* L);
+		static int luaPlayerIsCasting(lua_State* L);
+		static int luaPlayerSetCastPassword(lua_State* L);
+		static int luaPlayerCastHasPassword(lua_State* L);
+		static int luaPlayerBanCastViewer(lua_State* L);
+		static int luaPlayerUnbanCastViewer(lua_State* L);
+		static int luaPlayerGetCastViewers(lua_State* L);
+
 		// Monster
 		static int luaMonsterCreate(lua_State* L);
 

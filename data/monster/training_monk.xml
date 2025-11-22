@@ -2,20 +2,20 @@
 <monster name="Training Monk" nameDescription="a training monk" race="blood" experience="0" speed="0" manacost="0">
 	<health now="10000000" max="10000000"/>
 	<look type="57" corpse="0"/>
-	<targetchange interval="0" chance="0"/>
-	<strategy attack="100" defense="0"/>
+	<targetchange interval="60000" chance="0"/>
+	<strategy attack="0" defense="0"/>
 	<flags>
-		<summonable value="0"/>
-		<attackable value="1"/>
-		<hostile value="0"/>
-		<illusionable value="0"/>
-		<convinceable value="0"/>
-		<pushable value="0"/>
-		<canpushitems value="0"/>
-		<canpushcreatures value="0"/>
-		<targetdistance value="0"/>
-		<staticattack value="100"/>
-		<runonhealth value="0"/>
+		<summonable>0</summonable>
+		<attackable>1</attackable>
+		<hostile>0</hostile>
+		<illusionable>0</illusionable>
+		<convinceable>0</convinceable>
+		<pushable>0</pushable>
+		<canpushitems>0</canpushitems>
+		<canpushcreatures>0</canpushcreatures>
+		<targetdistance>0</targetdistance>
+		<staticattack>100</staticattack>
+		<runonhealth>0</runonhealth>
 	</flags>
 	<attacks>
 	</attacks>
@@ -32,7 +32,4 @@
 		<immunity drunk="1"/>
 		<immunity invisible="1"/>
 	</immunities>
-	<loot>
-	</loot>
 </monster>
-

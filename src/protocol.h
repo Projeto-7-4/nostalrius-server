@@ -85,6 +85,7 @@ class Protocol : public std::enable_shared_from_this<Protocol>
 
 		virtual void release() {}
 		friend class Connection;
+		friend class Cast;
 
 		OutputMessage_ptr outputBuffer;
 	private:

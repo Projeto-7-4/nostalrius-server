@@ -1,0 +1,14 @@
+# =============================================
+# PATCH 1: CMakeLists.txt
+# =============================================
+# 
+# INSTRUÇÃO: Adicionar esta linha ao final da lista de arquivos .cpp
+# 
+# Arquivo: /home/canary/nostalrius/src/CMakeLists.txt
+# 
+# Procurar por linhas que terminam com ".cpp" e adicionar:
+
+${CMAKE_CURRENT_LIST_DIR}/market.cpp
+
+
+

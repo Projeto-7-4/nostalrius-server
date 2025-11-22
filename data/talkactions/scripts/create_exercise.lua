@@ -62,3 +62,5 @@ function onSay(cid, words, param)
 	return false
 end
 
+
+

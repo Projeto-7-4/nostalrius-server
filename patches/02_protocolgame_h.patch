@@ -1,0 +1,19 @@
+// =============================================
+// PATCH 2: protocolgame.h
+// =============================================
+// 
+// INSTRUÇÃO: Adicionar estas linhas no protocolgame.h
+// 
+// Arquivo: /home/canary/nostalrius/src/protocolgame.h
+// 
+// Procurar por outras declarações "void parse..." e adicionar:
+
+	// Market System
+	void parseMarketBrowse(NetworkMessage& msg);
+	void parseMarketCreate(NetworkMessage& msg);
+	void parseMarketCancel(NetworkMessage& msg);
+	void parseMarketAccept(NetworkMessage& msg);
+	void sendMarketOffers(const std::vector<MarketOffer>& offers);
+
+
+
