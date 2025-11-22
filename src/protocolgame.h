@@ -258,6 +258,10 @@ class ProtocolGame final : public Protocol
 	void sendMarketBuyResponse(bool success, const std::string& message);
 	void sendMarketSellResponse(bool success, const std::string& message);
 	*/
+	
+	// Cast System
+	void parseRequestCastList(NetworkMessage& msg);
+	void sendCastList();
 
 	//otclient
 	void parseExtendedOpcode(NetworkMessage& msg);

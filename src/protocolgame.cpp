@@ -454,6 +454,9 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	case 0xF4: parseMarketMyOffers(msg); break;
 	*/
 	
+	// Cast System
+	case 0xF5: parseRequestCastList(msg); break;
+	
 	default:
 	    std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex << static_cast<uint16_t>(recvbyte) << std::dec << "!" << std::endl;
 		break;
@@ -2234,3 +2237,39 @@ void ProtocolGame::sendMarketSellResponse(bool success, const std::string& messa
 	std::cout << "[Market] Sent sell response: " << (success ? "success" : "failed") << std::endl;
 }
 */
+
+// Cast System Implementation
+#include "cast.h"
+
+void ProtocolGame::parseRequestCastList(NetworkMessage& msg)
+{
+	std::cout << "[Cast] Client requesting cast list" << std::endl;
+	sendCastList();
+}
+
+void ProtocolGame::sendCastList()
+{
+	CastManager& castManager = CastManager::getInstance();
+	std::vector<Cast*> casts = castManager.getAllCasts();
+	
+	NetworkMessage msg;
+	msg.addByte(0xF6); // Opcode for cast list
+	msg.add<uint16_t>(casts.size());
+	
+	std::cout << "[Cast] Sending " << casts.size() << " active casts to client" << std::endl;
+	
+	for (Cast* cast : casts) {
+		if (!cast || !cast->getOwner()) {
+			continue;
+		}
+		
+		Player* owner = cast->getOwner();
+		msg.addString(owner->getName()); // Cast owner name
+		msg.add<uint16_t>(cast->getViewerCount()); // Number of viewers
+		msg.addString(cast->getDescription()); // Description
+		msg.addByte(cast->hasPassword() ? 1 : 0); // Has password?
+	}
+	
+	writeToOutputBuffer(msg);
+	std::cout << "[Cast] Cast list sent successfully" << std::endl;
+}
