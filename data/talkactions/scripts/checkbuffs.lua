@@ -9,7 +9,7 @@ function onSay(player, words, param)
 
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "=== SEUS BUFFS DE COMBATE ===")
 	
-	-- Pega os special skills do player
+	-- Pega os special skills do player diretamente
 	local critChance = player:getSpecialSkill(SPECIALSKILL_CRITICALHITCHANCE)
 	local critAmount = player:getSpecialSkill(SPECIALSKILL_CRITICALHITAMOUNT)
 	local lifeChance = player:getSpecialSkill(SPECIALSKILL_LIFELEECHCHANCE)
@@ -17,13 +17,13 @@ function onSay(player, words, param)
 	local manaChance = player:getSpecialSkill(SPECIALSKILL_MANALEECHCHANCE)
 	local manaAmount = player:getSpecialSkill(SPECIALSKILL_MANALEECHAMOUNT)
 	
-	-- Garantir que os valores não sejam nil
-	if critChance == nil then critChance = 0 end
-	if critAmount == nil then critAmount = 0 end
-	if lifeChance == nil then lifeChance = 0 end
-	if lifeAmount == nil then lifeAmount = 0 end
-	if manaChance == nil then manaChance = 0 end
-	if manaAmount == nil then manaAmount = 0 end
+	-- Garantir que os valores não sejam nil (convertendo para número)
+	critChance = critChance and tonumber(critChance) or 0
+	critAmount = critAmount and tonumber(critAmount) or 0
+	lifeChance = lifeChance and tonumber(lifeChance) or 0
+	lifeAmount = lifeAmount and tonumber(lifeAmount) or 0
+	manaChance = manaChance and tonumber(manaChance) or 0
+	manaAmount = manaAmount and tonumber(manaAmount) or 0
 	
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Critical Hit Chance: " .. critChance .. "%")
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Critical Hit Amount: " .. critAmount .. "%")
