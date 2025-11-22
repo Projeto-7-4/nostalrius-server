@@ -353,19 +353,24 @@ void ConditionAttributes::serialize(PropWriteStream& propWriteStream)
 
 bool ConditionAttributes::startCondition(Creature* creature)
 {
+	std::cout << "[DEBUG] ConditionAttributes::startCondition called!" << std::endl;
 	if (!Condition::startCondition(creature)) {
+		std::cout << "[DEBUG] Condition::startCondition returned false!" << std::endl;
 		return false;
 	}
 
 	if (Player* player = creature->getPlayer()) {
+		std::cout << "[DEBUG] Applying condition to player: " << player->getName() << std::endl;
 		updatePercentSkills(player);
 		updateSkills(player);
 		updatePercentStats(player);
 		updateStats(player);
 		// Combat System - Apply Special Skills
+		std::cout << "[DEBUG] Calling updateSpecialSkills..." << std::endl;
 		updateSpecialSkills(player);
 	}
 
+	std::cout << "[DEBUG] startCondition finished successfully!" << std::endl;
 	return true;
 }
 
@@ -439,11 +444,14 @@ void ConditionAttributes::updateSkills(Player* player)
 // Combat System - Update Special Skills
 void ConditionAttributes::updateSpecialSkills(Player* player)
 {
+	std::cout << "[DEBUG] ConditionAttributes::updateSpecialSkills called!" << std::endl;
 	for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
 		if (specialSkills[i]) {
+			std::cout << "[DEBUG] Setting special skill " << i << " to " << specialSkills[i] << std::endl;
 			player->setVarSpecialSkill(static_cast<SpecialSkills_t>(i), specialSkills[i]);
 		}
 	}
+	std::cout << "[DEBUG] updateSpecialSkills finished!" << std::endl;
 }
 
 bool ConditionAttributes::executeCondition(Creature* creature, int32_t interval)
