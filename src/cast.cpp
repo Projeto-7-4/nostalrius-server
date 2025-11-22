@@ -76,29 +76,23 @@ void Cast::stopCast()
     
     casting = false;
     
-    // Cast System - remove all users from Cast Channel and delete it
-    if (owner && g_chat) {
-        ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
-        if (channel) {
-            // Remove all viewers from channel first
-            for (const auto& viewer : viewers) {
-                if (viewer.protocol && viewer.protocol->getPlayer()) {
-                    g_chat->removeUserFromChannel(*viewer.protocol->getPlayer(), CHANNEL_CAST);
-                }
-            }
-            // Remove broadcaster from channel
-            g_chat->removeUserFromChannel(*owner, CHANNEL_CAST);
-            // Delete the channel
-            g_chat->deleteChannel(*owner, CHANNEL_CAST);
-        }
-    }
-    
-    // Kick all viewers
+    // Kick all viewers (they will be removed from Cast Channel automatically in their logout())
     for (auto it = viewers.begin(); it != viewers.end(); ) {
         if (it->protocol) {
             it->protocol->disconnect();
         }
         it = viewers.erase(it);
+    }
+    
+    // Cast System - remove broadcaster from Cast Channel and delete it
+    if (owner && g_chat) {
+        ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
+        if (channel) {
+            // Remove broadcaster from channel
+            g_chat->removeUserFromChannel(*owner, CHANNEL_CAST);
+            // Delete the channel
+            g_chat->deleteChannel(*owner, CHANNEL_CAST);
+        }
     }
     
     CastManager::getInstance().removeCast(this);
