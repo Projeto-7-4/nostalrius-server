@@ -3507,7 +3507,8 @@ bool Game::combatChangeHealth(Creature* attacker, Creature* target, CombatDamage
 		uint8_t hitEffect;
 		if (damage.value) {
 			combatGetTypeInfo(damage.type, target, color, hitEffect);
-			if (hitEffect != CONST_ME_NONE) {
+			// Combat System - Não enviar efeito padrão se for crítico (efeito 173 já é enviado em combat.cpp)
+			if (hitEffect != CONST_ME_NONE && !damage.critical) {
 				addMagicEffect(list, targetPos, hitEffect);
 			}
 		}
