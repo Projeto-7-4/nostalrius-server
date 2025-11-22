@@ -421,7 +421,7 @@ CallBack* Combat::getCallback(CallBackParam_t key)
 bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatParams& params, CombatDamage* data)
 {
 	assert(data);
-	CombatDamage damage = *data;
+	CombatDamage& damage = *data;  // Usar referência ao invés de cópia para propagar critical flag
 
 	if (damage.value == 0) {
 		damage.value = normal_random(damage.min, damage.max);
