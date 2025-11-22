@@ -353,6 +353,14 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
+	// Check if this is a cast viewer (skip authentication for viewers)
+	if (characterName.find("[Viewer] ") == 0) {
+		std::cout << "[Cast] Detected viewer in onRecvFirstMessage, skipping authentication" << std::endl;
+		// Use special accountId for viewers
+		g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::login, getThis(), characterName, accountNumber, operatingSystem)));
+		return;
+	}
+	
 	uint32_t accountId = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
 	if (accountId == 0) {
 		disconnectClient("Account number or password is not correct.");
