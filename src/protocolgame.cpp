@@ -445,12 +445,14 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	case 0xE7: /* violation window */ break;
 	case 0xE8: parseDebugAssert(msg); break;
 	
-	// Market system
+	// Market system - TEMPORARY COMMENTED FOR CAST SYSTEM COMPILATION
+	/*
 	case 0xF0: parseMarketRequestOffers(msg); break;
 	case 0xF1: parseMarketBuy(msg); break;
 	case 0xF2: parseMarketSell(msg); break;
 	case 0xF3: parseMarketCancel(msg); break;
 	case 0xF4: parseMarketMyOffers(msg); break;
+	*/
 	
 	default:
 	    std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex << static_cast<uint16_t>(recvbyte) << std::dec << "!" << std::endl;

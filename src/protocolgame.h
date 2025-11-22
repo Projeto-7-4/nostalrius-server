@@ -246,6 +246,8 @@ class ProtocolGame final : public Protocol
 	void MoveDownCreature(NetworkMessage& msg, const Creature* creature, const Position& newPos, const Position& oldPos);
 
 	//market
+	// TEMPORARY COMMENTED FOR CAST SYSTEM COMPILATION
+	/*
 	void parseMarketRequestOffers(NetworkMessage& msg);
 	void parseMarketBuy(NetworkMessage& msg);
 	void parseMarketSell(NetworkMessage& msg);
@@ -255,6 +257,7 @@ class ProtocolGame final : public Protocol
 	void sendMarketOffers(const std::vector<struct MarketOffer>& offers);
 	void sendMarketBuyResponse(bool success, const std::string& message);
 	void sendMarketSellResponse(bool success, const std::string& message);
+	*/
 
 	//otclient
 	void parseExtendedOpcode(NetworkMessage& msg);
