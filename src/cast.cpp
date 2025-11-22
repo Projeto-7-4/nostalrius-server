@@ -119,25 +119,35 @@ void Cast::stopCast()
 bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& pwd)
 {
     if (!casting || !protocol) {
+        std::cout << "[Cast] addViewer failed: casting=" << casting << " protocol=" << (protocol != nullptr) << std::endl;
         return false;
     }
     
     // Check if viewer is banned
     if (isViewerBanned(viewerName)) {
+        std::cout << "[Cast] addViewer failed: viewer '" << viewerName << "' is banned" << std::endl;
         return false;
     }
     
     // Check password
     if (hasPassword() && password != pwd) {
+        std::cout << "[Cast] addViewer failed: incorrect password for '" << viewerName << "'" << std::endl;
         return false;
     }
     
     // Check if viewer already exists
     for (const auto& viewer : viewers) {
-        if (viewer.name == viewerName || viewer.protocol == protocol) {
+        if (viewer.name == viewerName) {
+            std::cout << "[Cast] addViewer failed: viewer name '" << viewerName << "' already exists" << std::endl;
+            return false;
+        }
+        if (viewer.protocol == protocol) {
+            std::cout << "[Cast] addViewer failed: protocol already in use" << std::endl;
             return false;
         }
     }
+    
+    std::cout << "[Cast] Adding viewer '" << viewerName << "' (current viewers: " << viewers.size() << ")" << std::endl;
     
     CastViewer viewer;
     viewer.name = viewerName;
@@ -147,12 +157,25 @@ bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, cons
     
     viewers.push_back(viewer);
     
-    // Update database
+    // Update database and send notifications
     if (owner) {
         IOLoginData::updateCastStatus(owner->getGUID(), true, viewers.size());
+        
+        // Send notification to owner
         std::ostringstream ss;
         ss << "Viewer '" << viewerName << "' connected to your cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
         owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, ss.str());
+        
+        // Broadcast join message to Cast Channel
+        if (g_chat) {
+            ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
+            if (channel) {
+                std::ostringstream joinMsg;
+                joinMsg << viewerName << " has joined the cast";
+                // Send as owner speaking in orange
+                channel->talk(*owner, TALKTYPE_CHANNEL_O, joinMsg.str());
+            }
+        }
     }
     
     return true;
@@ -165,12 +188,25 @@ void Cast::removeViewer(ProtocolGame* protocol)
             std::string viewerName = it->name;
             viewers.erase(it);
             
-            // Update database
+            // Update database and send notifications
             if (owner) {
                 IOLoginData::updateCastStatus(owner->getGUID(), true, viewers.size());
+                
+                // Send notification to owner
                 std::ostringstream ss;
                 ss << "Viewer '" << viewerName << "' disconnected from your cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
                 owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, ss.str());
+                
+                // Broadcast leave message to Cast Channel
+                if (g_chat) {
+                    ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
+                    if (channel) {
+                        std::ostringstream leaveMsg;
+                        leaveMsg << viewerName << " has left the cast";
+                        // Send as owner speaking in orange
+                        channel->talk(*owner, TALKTYPE_CHANNEL_O, leaveMsg.str());
+                    }
+                }
             }
             break;
         }
