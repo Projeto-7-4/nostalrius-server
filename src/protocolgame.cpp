@@ -120,7 +120,9 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		ChatChannel* channel = g_chat->getChannel(*broadcaster, CHANNEL_CAST);
 		if (channel) {
 			channel->addUser(*viewerPlayer);
-			std::cout << "[Cast] Viewer added to Cast Channel" << std::endl;
+			// Send channel to viewer's client
+			sendChannel(CHANNEL_CAST, "Cast Channel");
+			std::cout << "[Cast] Viewer added to Cast Channel and channel sent to client" << std::endl;
 		}
 	}
 	

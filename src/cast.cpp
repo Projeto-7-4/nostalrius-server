@@ -55,6 +55,8 @@ bool Cast::startCast(const std::string& pwd)
         ChatChannel* channel = g_chat->createChannel(*owner, CHANNEL_CAST);
         if (channel) {
             channel->addUser(*owner);
+            // Send channel to broadcaster's client
+            owner->sendChannel(CHANNEL_CAST, "Cast Channel");
             owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Cast Channel opened! You can now chat with your viewers.");
         }
     }
