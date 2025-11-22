@@ -414,6 +414,24 @@ bool Items::loadItems()
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_UNDEFINEDDAMAGE)] += script.readNumber();
 					} else if (identifier == "absorbfirefield") {
 						items[id].getAbilities().fieldAbsorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] += static_cast<int16_t>(script.readNumber());
+					} else if (identifier == "criticalhitchance") {
+						// Combat System - Special Skills
+						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITCHANCE] = script.readNumber();
+					} else if (identifier == "criticalhitamount") {
+						// Combat System - Special Skills
+						items[id].getAbilities().specialSkills[SPECIALSKILL_CRITICALHITAMOUNT] = script.readNumber();
+					} else if (identifier == "lifeleechchance") {
+						// Combat System - Special Skills
+						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHCHANCE] = script.readNumber();
+					} else if (identifier == "lifeleechamount") {
+						// Combat System - Special Skills
+						items[id].getAbilities().specialSkills[SPECIALSKILL_LIFELEECHAMOUNT] = script.readNumber();
+					} else if (identifier == "manaleechchance") {
+						// Combat System - Special Skills
+						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHCHANCE] = script.readNumber();
+					} else if (identifier == "manaleechamount") {
+						// Combat System - Special Skills
+						items[id].getAbilities().specialSkills[SPECIALSKILL_MANALEECHAMOUNT] = script.readNumber();
 					} else if (identifier == "brightness") {
 						items[id].lightLevel = script.readNumber();
 					} else if (identifier == "lightcolor") {
