@@ -110,12 +110,11 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		player->incrementReferenceCounter();
 		player->setID();
 		
-		// Copy basic broadcaster info
+		// Get broadcaster's position
 		Position broadcasterPos = broadcaster->getPosition();
-		player->setPosition(broadcasterPos);
 		
-		std::cout << "[Cast] Viewer created at position: " << broadcasterPos << std::endl;
-		std::cout << "[Cast] Viewer setup complete, adding to game..." << std::endl;
+		std::cout << "[Cast] Viewer created, position: " << broadcasterPos << std::endl;
+		std::cout << "[Cast] Adding viewer to game..." << std::endl;
 		
 		// Add viewer to the game at broadcaster's position
 		if (!g_game.placeCreature(player, broadcasterPos, false, true)) {
