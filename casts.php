@@ -23,8 +23,9 @@ try {
         throw new Exception('Database connection failed: ' . $mysqli->connect_error);
     }
     
-    // Query to get active casts
-    // For now, we'll simulate by getting online players who might be casting
+    // Query to get all online players
+    // Note: Cast status is managed in memory by the server
+    // So we show all online players and server will validate on connection
     $query = "
         SELECT 
             p.name,
@@ -33,7 +34,8 @@ try {
         FROM players p
         INNER JOIN players_online po ON p.id = po.player_id
         WHERE p.group_id = 1
-        LIMIT 20
+        ORDER BY p.level DESC
+        LIMIT 50
     ";
     
     $result = $mysqli->query($query);
