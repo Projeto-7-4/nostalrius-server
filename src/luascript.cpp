@@ -8508,7 +8508,10 @@ int LuaScriptInterface::luaPlayerStartCast(lua_State* L)
 	// player:startCast([password])
 	Player* player = getUserdata<Player>(L, 1);
 	if (player) {
-		std::string password = getString(L, 2, "");
+		std::string password = "";
+		if (lua_gettop(L) >= 2) {
+			password = getString(L, 2);
+		}
 		pushBoolean(L, player->startCast(password));
 	} else {
 		lua_pushnil(L);
