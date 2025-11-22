@@ -85,7 +85,9 @@ void Cast::stopCast()
     
     // Cast System - update database
     if (owner) {
+        std::cout << "[Cast] stopCast() - Removing cast from database for player: " << owner->getName() << " (GUID: " << owner->getGUID() << ")" << std::endl;
         IOLoginData::updateCastStatus(owner->getGUID(), false, 0);
+        std::cout << "[Cast] stopCast() - Database updated (cast removed)" << std::endl;
     }
     
     // Kick all viewers (they will be removed from Cast Channel automatically in their logout())
