@@ -501,21 +501,14 @@ void ProtocolGame::writeToOutputBuffer(const NetworkMessage& msg)
 void ProtocolGame::broadcastToViewers(const NetworkMessage& msg)
 {
 	if (player && player->isCasting()) {
-		// Check if this is a Cast Channel message (opcode 0xAA = channel message)
+		// Don't broadcast channel messages (0xAA) because viewers receive them as channel members
 		if (msg.getLength() >= 1) {
-			uint8_t opcode = msg.getByte();
-			msg.setBufferPosition(0); // Reset position
+			const uint8_t* buffer = msg.getBuffer();
+			uint8_t opcode = buffer[0];
 			
-			// If it's a channel message, check if it's Cast Channel
 			if (opcode == 0xAA) {
-				// Don't broadcast Cast Channel messages (viewers receive them as channel members)
-				// They already get these messages via sendToChannel
-				if (msg.getLength() >= 5) {
-					uint16_t channelId = msg.get<uint16_t>(3); // Channel ID at position 3
-					if (channelId == CHANNEL_CAST) {
-						return; // Don't broadcast Cast Channel messages
-					}
-				}
+				// Skip broadcasting channel messages - viewers get them via sendToChannel
+				return;
 			}
 		}
 		
