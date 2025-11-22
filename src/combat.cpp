@@ -436,6 +436,10 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 
 	// Combat System - Critical Hit (FORA do bloco de dano negativo!)
 	// Funciona para ataques normais (dano positivo) e não para healing
+	std::cout << "[DEBUG CRITICAL] Checking... caster=" << (caster ? "YES" : "NO") 
+	          << " | critical=" << damage.critical 
+	          << " | type=" << (int)damage.type 
+	          << " | value=" << damage.value << std::endl;
 	if (caster && !damage.critical && damage.type != COMBAT_HEALING) {
 		Player* casterPlayer = caster->getPlayer();
 		if (casterPlayer) {
