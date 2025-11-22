@@ -238,8 +238,16 @@ bool Items::loadItems()
 					script.readSymbol('=');
 					
 					// Converter para minúsculas para comparação case-insensitive
+					// Nota: script.getIdentifier() já retorna em minúsculas, mas vamos garantir
 					std::string lowerIdentifier = identifier;
 					std::transform(lowerIdentifier.begin(), lowerIdentifier.end(), lowerIdentifier.begin(), ::tolower);
+					
+					// Debug: logar todos os identificadores para item 3288
+					if (id == 3288 && (lowerIdentifier.find("critical") != std::string::npos || 
+					                    lowerIdentifier.find("leech") != std::string::npos)) {
+						std::cout << "[DEBUG ITEMS] Item " << id << " | Identifier: '" << identifier 
+						          << "' | Lower: '" << lowerIdentifier << "'" << std::endl;
+					}
 
 					if (lowerIdentifier == "waypoints") {
 						items[id].speed = script.readNumber();
