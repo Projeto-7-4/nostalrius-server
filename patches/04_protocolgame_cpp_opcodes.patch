@@ -1,0 +1,19 @@
+// =============================================
+// PATCH 3B: protocolgame.cpp - OPCODES
+// =============================================
+// 
+// INSTRUÇÃO: Adicionar dentro do switch(recvbyte) no parsePacket()
+// 
+// Arquivo: /home/canary/nostalrius/src/protocolgame.cpp
+// 
+// Procurar por: void ProtocolGame::parsePacket(NetworkMessage& msg)
+// Procurar por: switch (recvbyte) {
+// Adicionar junto com outros "case":
+
+		case 0xF0: parseMarketBrowse(msg); break;
+		case 0xF1: parseMarketCreate(msg); break;
+		case 0xF2: parseMarketCancel(msg); break;
+		case 0xF3: parseMarketAccept(msg); break;
+
+
+

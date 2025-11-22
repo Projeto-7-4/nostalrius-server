@@ -1,0 +1,14 @@
+// =============================================
+// PATCH 3A: protocolgame.cpp - INCLUDE
+// =============================================
+// 
+// INSTRUÇÃO: Adicionar no TOPO do arquivo protocolgame.cpp
+// 
+// Arquivo: /home/canary/nostalrius/src/protocolgame.cpp
+// 
+// Procurar por outros #include e adicionar:
+
+#include "market.h"
+
+
+

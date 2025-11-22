@@ -1,0 +1,35 @@
+# Exercise Weapons para Training System
+# Adicionar ao final do items.srv
+
+TypeID      = 5901
+Name        = "exercise sword"
+Description = "A training weapon. Use it on training dummies to improve sword fighting."
+Flags       = {UseEvent,Take,Height,Weapon}
+Attributes  = {Weight=3500,Attack=1,WeaponType=3,Charges=500}
+
+TypeID      = 5902
+Name        = "exercise axe"
+Description = "A training weapon. Use it on training dummies to improve axe fighting."
+Flags       = {UseEvent,Take,Height,Weapon}
+Attributes  = {Weight=3500,Attack=1,WeaponType=4,Charges=500}
+
+TypeID      = 5903
+Name        = "exercise club"
+Description = "A training weapon. Use it on training dummies to improve club fighting."
+Flags       = {UseEvent,Take,Height,Weapon}
+Attributes  = {Weight=3500,Attack=1,WeaponType=2,Charges=500}
+
+TypeID      = 5904
+Name        = "exercise bow"
+Description = "A training weapon. Use it on training dummies to improve distance fighting."
+Flags       = {UseEvent,Take,Height,Weapon}
+Attributes  = {Weight=2500,Attack=1,WeaponType=5,Charges=500,Range=5,AmmoType=3}
+
+TypeID      = 5905
+Name        = "exercise shield"
+Description = "A training shield. Use it while attacking training dummies to improve shielding."
+Flags       = {UseEvent,Take,Height,Container}
+Attributes  = {Weight=2000,Defense=1,Charges=500,WeaponType=9}
+
+
+
