@@ -92,19 +92,21 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		
 		std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
 		
-		// Create viewer player (temporary, won't be saved)
-		player = new Player(getThis());
-		player->setName(name);
-		player->incrementReferenceCounter();
-		player->setID();
+		// Add this protocol as a viewer to the broadcaster's cast
+		std::string viewerIp = convertIPToString(getIP());
+		if (!cast->addViewer(this, name, viewerIp, "")) {
+			std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
+			disconnectClient("Failed to join the cast. Please try again.");
+			return;
+		}
 		
-		std::cout << "[Cast] Viewer player created successfully" << std::endl;
+		std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
+		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
+		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 		
-		// TODO: Connect as viewer and start receiving broadcaster's data
-		std::cout << "[Cast] Viewer " << name << " connected to " << broadcasterName << "'s cast" << std::endl;
-		
-		// For now, disconnect with message
-		disconnectClient("Cast viewing is being implemented. Coming soon!");
+		// Send a success message and disconnect for now
+		// TODO: Implement full viewer synchronization
+		disconnectClient("Successfully connected to " + broadcasterName + "'s cast!\n\nViewer mode with live gameplay streaming is still being implemented.\n\nComing soon!");
 		return;
 	}
 	
