@@ -432,10 +432,13 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 		if (targetPlayer && caster->getPlayer()) {
 			damage.value /= 2;
 		}
+	}
 
-		// Combat System - Critical Hit
+	// Combat System - Critical Hit (FORA do bloco de dano negativo!)
+	// Funciona para ataques normais (dano positivo) e não para healing
+	if (caster && !damage.critical && damage.type != COMBAT_HEALING) {
 		Player* casterPlayer = caster->getPlayer();
-		if (!damage.critical && casterPlayer && damage.type != COMBAT_HEALING) {
+		if (casterPlayer) {
 			uint16_t chance = casterPlayer->getSpecialSkill(SPECIALSKILL_CRITICALHITCHANCE);
 			uint16_t skill = casterPlayer->getSpecialSkill(SPECIALSKILL_CRITICALHITAMOUNT);
 			if (chance > 0 && skill > 0 && normal_random(1, 100) <= chance) {
