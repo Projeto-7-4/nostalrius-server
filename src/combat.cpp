@@ -432,18 +432,67 @@ bool Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 		if (targetPlayer && caster->getPlayer()) {
 			damage.value /= 2;
 		}
+
+		// Combat System - Critical Hit
+		Player* casterPlayer = caster->getPlayer();
+		if (!damage.critical && casterPlayer && damage.type != COMBAT_HEALING) {
+			uint16_t chance = casterPlayer->getSpecialSkill(SPECIALSKILL_CRITICALHITCHANCE);
+			uint16_t skill = casterPlayer->getSpecialSkill(SPECIALSKILL_CRITICALHITAMOUNT);
+			if (chance > 0 && skill > 0 && normal_random(1, 100) <= chance) {
+				damage.value += std::round(damage.value * (skill / 100.0));
+				damage.critical = true;
+			}
+		}
 	}
 
 	if (g_game.combatBlockHit(damage, caster, target, params.blockedByShield, params.blockedByArmor, params.itemId != 0)) {
 		return false;
 	}
 
-	if (g_game.combatChangeHealth(caster, target, damage)) {
+	bool success = g_game.combatChangeHealth(caster, target, damage);
+	if (success) {
 		CombatConditionFunc(caster, target, params, nullptr);
 		CombatDispelFunc(caster, target, params, nullptr);
+
+		// Combat System - Critical Hit Visual Effect
+		if (damage.critical) {
+			g_game.addMagicEffect(target->getPosition(), CONST_ME_CRITICAL_DAMAGE);
+		}
+
+		// Combat System - Life & Mana Leech
+		Player* casterPlayer = caster ? caster->getPlayer() : nullptr;
+		if (!damage.leeched && damage.type != COMBAT_HEALING && casterPlayer) {
+			CombatDamage leechCombat;
+			leechCombat.type = COMBAT_HEALING;
+			leechCombat.leeched = true;
+
+			int32_t totalDamage = std::abs(damage.value);
+
+			// Life Leech
+			if (casterPlayer->getHealth() < casterPlayer->getMaxHealth()) {
+				uint16_t chance = casterPlayer->getSpecialSkill(SPECIALSKILL_LIFELEECHCHANCE);
+				uint16_t skill = casterPlayer->getSpecialSkill(SPECIALSKILL_LIFELEECHAMOUNT);
+				if (chance > 0 && skill > 0 && normal_random(1, 100) <= chance) {
+					leechCombat.value = std::round(totalDamage * (skill / 10000.0));
+					g_game.combatChangeHealth(nullptr, casterPlayer, leechCombat);
+					g_game.addMagicEffect(casterPlayer->getPosition(), CONST_ME_MAGIC_RED);
+				}
+			}
+
+			// Mana Leech
+			if (casterPlayer->getMana() < casterPlayer->getMaxMana()) {
+				uint16_t chance = casterPlayer->getSpecialSkill(SPECIALSKILL_MANALEECHCHANCE);
+				uint16_t skill = casterPlayer->getSpecialSkill(SPECIALSKILL_MANALEECHAMOUNT);
+				if (chance > 0 && skill > 0 && normal_random(1, 100) <= chance) {
+					leechCombat.value = std::round(totalDamage * (skill / 10000.0));
+					g_game.combatChangeMana(nullptr, casterPlayer, leechCombat.value);
+					g_game.addMagicEffect(casterPlayer->getPosition(), CONST_ME_MAGIC_BLUE);
+				}
+			}
+		}
 	}
 
-	return true;
+	return success;
 }
 
 bool Combat::CombatManaFunc(Creature* caster, Creature* target, const CombatParams& params, CombatDamage* data)

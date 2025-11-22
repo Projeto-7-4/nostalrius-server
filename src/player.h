@@ -400,6 +400,14 @@ class Player final : public Creature, public Cylinder
 			varSkills[skill] += modifier;
 		}
 
+		// Combat System - Special Skills
+		void setVarSpecialSkill(SpecialSkills_t skill, int32_t modifier) {
+			varSpecialSkills[skill] += modifier;
+		}
+		uint16_t getSpecialSkill(uint8_t skill) const {
+			return std::max<int32_t>(0, varSpecialSkills[skill]);
+		}
+
 		void setVarStats(stats_t stat, int32_t modifier);
 		int32_t getDefaultStats(stats_t stat) const;
 
@@ -1041,6 +1049,8 @@ class Player final : public Creature, public Cylinder
 		uint32_t manaMax = 0;
 		int32_t varSkills[SKILL_LAST + 1] = {};
 		int32_t varStats[STAT_LAST + 1] = {};
+		// Combat System - Special Skills
+		int32_t varSpecialSkills[SPECIALSKILL_LAST + 1] = {};
 		int32_t MessageBufferCount = 0;
 		int32_t premiumDays = 0;
 		int32_t bloodHitCount = 0;
