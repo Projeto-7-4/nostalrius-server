@@ -81,17 +81,25 @@ function onSay(player, words, param)
 	end
 
 	-- Debug: mostra info do item
-	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Item encontrado: " .. item:getName())
-	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Ataque atual: " .. item:getAttack())
+	local currentAttack = item:getAttack() or 0
+	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Item encontrado: " .. item:getName() .. " (ID: " .. item:getId() .. ")")
+	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Ataque atual: " .. currentAttack)
 
 	-- Tenta setar o atributo
-	local success = item:setAttribute(ITEM_ATTRIBUTE_ATTACK, attackValue)
+	item:setAttribute(ITEM_ATTRIBUTE_ATTACK, attackValue)
 	
-	if success then
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "✓ Ataque de " .. item:getName() .. " alterado para " .. attackValue .. "!")
+	-- Verifica se foi setado corretamente
+	local newAttack = item:getAttack()
+	
+	if newAttack == attackValue then
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "✓ Ataque de " .. item:getName() .. " alterado de " .. currentAttack .. " para " .. attackValue .. "!")
 		player:getPosition():sendMagicEffect(CONST_ME_MAGIC_GREEN)
+		if item:getPosition() then
+			item:getPosition():sendMagicEffect(CONST_ME_MAGIC_GREEN)
+		end
 	else
-		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "✗ Erro ao alterar ataque!")
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "⚠️ Ataque setado, mas valor verificado: " .. (newAttack or "nil"))
+		player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "💡 Tente pegar o item e usar novamente, ou use /superattack para forçar.")
 	end
 
 	return false
