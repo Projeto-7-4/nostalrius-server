@@ -9,8 +9,8 @@
 -- /cast info - Show cast information
 
 function onSay(player, words, param)
-    local split = param:split(",")
-    local command = split[1] and split[1]:trim():lower()
+    local args = param:split(" ")
+    local command = args[1] and args[1]:lower() or ""
     
     if not command or command == "" then
         player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Cast System Commands:")
@@ -31,7 +31,7 @@ function onSay(player, words, param)
             return false
         end
         
-        local password = split[2] and split[2]:trim() or ""
+        local password = args[2] and args[2]:trim() or ""
         if player:startCast(password) then
             if password ~= "" then
                 player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Cast started with password: " .. password)
@@ -59,7 +59,7 @@ function onSay(player, words, param)
             return false
         end
         
-        local password = split[2] and split[2]:trim()
+        local password = args[2] and args[2]:trim()
         if not password or password == "" then
             player:sendCancelMessage("Usage: /cast password <password> or /cast password off")
             return false
@@ -80,7 +80,7 @@ function onSay(player, words, param)
             return false
         end
         
-        local viewerName = split[2] and split[2]:trim()
+        local viewerName = args[2] and args[2]:trim()
         if not viewerName or viewerName == "" then
             player:sendCancelMessage("Usage: /cast ban <viewer name>")
             return false
@@ -96,7 +96,7 @@ function onSay(player, words, param)
             return false
         end
         
-        local viewerName = split[2] and split[2]:trim()
+        local viewerName = args[2] and args[2]:trim()
         if not viewerName or viewerName == "" then
             player:sendCancelMessage("Usage: /cast unban <viewer name>")
             return false
