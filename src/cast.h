@@ -74,6 +74,7 @@ public:
     Player* getOwner() const { return owner; }
     const std::string& getDescription() const { return description; }
     void setDescription(const std::string& desc) { description = desc; }
+    uint32_t getNextViewerNumber() { return ++viewerCounter; } // Get next viewer number
 
 private:
     Player* owner;
@@ -83,6 +84,7 @@ private:
     std::string description;
     bool casting;
     time_t startTime;
+    uint32_t viewerCounter; // Cast System - counter for viewer numbering
 };
 
 // Global cast manager

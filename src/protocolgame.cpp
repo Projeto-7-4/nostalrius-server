@@ -108,9 +108,14 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	isViewer = true;
 	viewingBroadcaster = broadcaster;
 	
+	// Get viewer number from cast
+	uint32_t viewerNumber = cast->getNextViewerNumber();
+	
 	// Create a temporary Player for the viewer (for chat purposes only)
 	viewerPlayer = new Player(getThis());
-	viewerPlayer->setName("[Viewer] " + name); // Add [Viewer] prefix
+	std::ostringstream viewerName;
+	viewerName << "[Viewer " << viewerNumber << "]";
+	viewerPlayer->setName(viewerName.str());
 	viewerPlayer->setID();
 	viewerPlayer->incrementReferenceCounter();
 	viewerPlayer->viewingBroadcaster = broadcaster;

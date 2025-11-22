@@ -29,7 +29,8 @@ extern Chat* g_chat;
 Cast::Cast(Player* player) :
     owner(player),
     casting(false),
-    startTime(0)
+    startTime(0),
+    viewerCounter(0)
 {
 }
 
