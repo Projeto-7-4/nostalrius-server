@@ -116,7 +116,7 @@ void Cast::stopCast()
     }
 }
 
-bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& pwd)
+bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& pwd, Player* viewerPlayer)
 {
     if (!casting || !protocol) {
         std::cout << "[Cast] addViewer failed: casting=" << casting << " protocol=" << (protocol != nullptr) << std::endl;
@@ -166,14 +166,15 @@ bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, cons
         ss << "Viewer '" << viewerName << "' connected to your cast (" << viewers.size() << " viewer" << (viewers.size() > 1 ? "s" : "") << " watching)";
         owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, ss.str());
         
-        // Broadcast join message to Cast Channel
-        if (g_chat) {
+        // Broadcast join message to Cast Channel (in orange)
+        if (g_chat && viewerPlayer) {
             ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
             if (channel) {
                 std::ostringstream joinMsg;
-                joinMsg << viewerName << " has joined the cast";
-                // Send as owner speaking in orange
-                channel->talk(*owner, TALKTYPE_CHANNEL_O, joinMsg.str());
+                joinMsg << "has joined the cast";
+                // Send message with viewerPlayer as sender so it shows "[Viewer X]: has joined..."
+                // which appears as "[Viewer X] has joined the cast" to users
+                channel->talk(*viewerPlayer, TALKTYPE_CHANNEL_O, joinMsg.str());
             }
         }
     }
@@ -181,7 +182,7 @@ bool Cast::addViewer(ProtocolGame* protocol, const std::string& viewerName, cons
     return true;
 }
 
-void Cast::removeViewer(ProtocolGame* protocol)
+void Cast::removeViewer(ProtocolGame* protocol, Player* viewerPlayer)
 {
     for (auto it = viewers.begin(); it != viewers.end(); ++it) {
         if (it->protocol == protocol) {
@@ -198,13 +199,13 @@ void Cast::removeViewer(ProtocolGame* protocol)
                 owner->sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, ss.str());
                 
                 // Broadcast leave message to Cast Channel
-                if (g_chat) {
+                if (g_chat && viewerPlayer) {
                     ChatChannel* channel = g_chat->getChannel(*owner, CHANNEL_CAST);
                     if (channel) {
                         std::ostringstream leaveMsg;
-                        leaveMsg << viewerName << " has left the cast";
-                        // Send as owner speaking in orange
-                        channel->talk(*owner, TALKTYPE_CHANNEL_O, leaveMsg.str());
+                        leaveMsg << "has left the cast";
+                        // Send message with viewerPlayer as sender
+                        channel->talk(*viewerPlayer, TALKTYPE_CHANNEL_O, leaveMsg.str());
                     }
                 }
             }

@@ -90,20 +90,8 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 			return;
 		}
 		
-		std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
-		
-		// Add this protocol as a viewer to the broadcaster's cast
-		std::string viewerIp = convertIPToString(getIP());
-		if (!cast->addViewer(this, name, viewerIp, "")) {
-			std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
-			disconnectClient("Failed to join the cast. Please try again.");
-			return;
-		}
-		
-		std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
-		std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
-		std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
-		
+	std::cout << "[Cast] Broadcaster is casting! Creating viewer..." << std::endl;
+	
 	// Mark this protocol as a viewer
 	isViewer = true;
 	viewingBroadcaster = broadcaster;
@@ -119,6 +107,20 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 	viewerPlayer->setID();
 	viewerPlayer->incrementReferenceCounter();
 	viewerPlayer->viewingBroadcaster = broadcaster;
+	
+	// Add this protocol as a viewer to the broadcaster's cast (with viewerPlayer)
+	std::string viewerIp = convertIPToString(getIP());
+	if (!cast->addViewer(this, name, viewerIp, "", viewerPlayer)) {
+		std::cout << "[Cast] ERROR: Failed to add viewer to cast" << std::endl;
+		viewerPlayer->decrementReferenceCounter();
+		viewerPlayer = nullptr;
+		disconnectClient("Failed to join the cast. Please try again.");
+		return;
+	}
+	
+	std::cout << "[Cast] Successfully added as viewer to broadcast" << std::endl;
+	std::cout << "[Cast] Viewer " << name << " is now watching " << broadcasterName << "'s cast!" << std::endl;
+	std::cout << "[Cast] Total viewers: " << cast->getViewerCount() << std::endl;
 	
 	// Add viewer to Cast Channel
 	if (g_chat) {
@@ -320,6 +322,12 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 	if (isViewer) {
 		std::cout << "[Cast] Viewer disconnecting..." << std::endl;
 		
+	// Remove this viewer from the cast (pass viewerPlayer for leave message)
+	if (viewingBroadcaster && viewingBroadcaster->cast) {
+		viewingBroadcaster->cast->removeViewer(this, viewerPlayer);
+		std::cout << "[Cast] Viewer removed from cast" << std::endl;
+	}
+	
 	// Remove viewer from Cast Channel and clean up
 	if (viewerPlayer && viewingBroadcaster && g_chat) {
 		ChatChannel* channel = g_chat->getChannel(*viewingBroadcaster, CHANNEL_CAST);
@@ -330,12 +338,6 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 		viewerPlayer->decrementReferenceCounter();
 		viewerPlayer = nullptr;
 	}
-		
-		// Remove this viewer from the cast
-		if (viewingBroadcaster && viewingBroadcaster->cast) {
-			viewingBroadcaster->cast->removeViewer(this);
-			std::cout << "[Cast] Viewer removed from cast" << std::endl;
-		}
 		
 		// Simply disconnect without affecting the game world
 		disconnect();

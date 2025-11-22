@@ -49,8 +49,8 @@ public:
     bool isCasting() const { return casting; }
     
     // Viewer management
-    bool addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& password = "");
-    void removeViewer(ProtocolGame* protocol);
+    bool addViewer(ProtocolGame* protocol, const std::string& viewerName, const std::string& viewerIp, const std::string& password = "", Player* viewerPlayer = nullptr);
+    void removeViewer(ProtocolGame* protocol, Player* viewerPlayer = nullptr);
     void removeViewer(const std::string& viewerName);
     size_t getViewerCount() const { return viewers.size(); }
     const std::vector<CastViewer>& getViewers() const { return viewers; }
